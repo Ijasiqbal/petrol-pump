@@ -1,0 +1,17 @@
+.box{
+    background-color: rgba(245, 222, 179, 0.84);
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    justify-content: space-between;
+}
+
+.nametag{
+    margin-right: 12px;
+}
+.contents
+{
+    margin-left: 8%;
+}

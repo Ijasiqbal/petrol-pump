@@ -1,0 +1,14 @@
+.form{
+    display: flex;
+}
+.save1{
+    margin-top: 5px;
+    margin-left: 15px;
+}
+.error-message{
+    color: red;
+    margin: 10px;
+}
+.heading3{
+    margin: 10px;
+}

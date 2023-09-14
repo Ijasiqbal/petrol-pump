@@ -1,0 +1,9 @@
+
+.row {
+  display: grid;
+  grid-template-columns: auto 1fr; /* Define two columns: auto and 1fr */
+  align-items: center; /* Align items vertically */
+  margin-left: 0px;
+  margin-bottom: 30px;
+  
+}

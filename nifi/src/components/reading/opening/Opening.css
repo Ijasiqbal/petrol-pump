@@ -1,0 +1,15 @@
+.input-row{
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 30px;
+    background-color: rgba(245, 222, 179, 0.84);
+    padding: 25px;
+    border-radius: 10px;
+     
+}
+.save{
+    margin-top: 3px;
+}
+.price{
+    margin-left: 20%
+}

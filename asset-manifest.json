@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/petrol-pump/static/css/main.125c4633.css",
+    "main.js": "/petrol-pump/static/js/main.9f4d63c6.js",
+    "static/js/787.258a6292.chunk.js": "/petrol-pump/static/js/787.258a6292.chunk.js",
+    "index.html": "/petrol-pump/index.html",
+    "main.125c4633.css.map": "/petrol-pump/static/css/main.125c4633.css.map",
+    "main.9f4d63c6.js.map": "/petrol-pump/static/js/main.9f4d63c6.js.map",
+    "787.258a6292.chunk.js.map": "/petrol-pump/static/js/787.258a6292.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.125c4633.css",
+    "static/js/main.9f4d63c6.js"
+  ]
+}

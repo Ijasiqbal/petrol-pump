@@ -38,6 +38,7 @@ const CreateCredit = () => {
             <h2>Create</h2>
             <div className="create-form">
                 <TextField 
+                  sx={{ maxWidth: 200 }}
                   id="outlined-basic" 
                   label="Name"
                   value={name} 

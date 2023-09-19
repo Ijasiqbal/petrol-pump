@@ -5,6 +5,7 @@ import './Tab.css'
 import Stock from '../stock/Stock';
 import Reading from '../reading/Reading';
 import Employee from '../Employee/Employee';
+import CreditPage from '../credit/CreditPage';
 
 function ControlledTabsExample() {
   const [key, setKey] = useState('');
@@ -20,7 +21,7 @@ function ControlledTabsExample() {
         <Stock />
       </Tab>
       <Tab eventKey="credit" title="Credit">
-        Tab content for Profile
+        <CreditPage />
       </Tab>
       <Tab eventKey="employee" title="Employee Management">
         <Employee />

@@ -8,6 +8,10 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import './creditors.css'
 import TextField from '@mui/material/TextField';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+
 
 
 const ITEM_HEIGHT = 48;
@@ -21,18 +25,31 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'TCS',
-  'Alen feld man',
-  'Mayoori',
-  'TVS',
-  'Honda',
-];
+
 
 
 const Creditors = () => {
 
-    const [personName, setPersonName] = React.useState([]);
+    const [personName, setPersonName] = useState([]);
+    const [Names,setNames] = useState([]);
+
+    async function fetchnames(){
+
+      try{
+        const response = await axios.get('http://127.0.0.1:8000/api/creditors/');
+        const creditorsdata = response.data;
+        const names = creditorsdata.map((creditor) => {return creditor.name});
+        setNames(names);
+        console.log('names',names)
+      }catch(error){
+        console.error('Error fetching creditors names:', error);
+      }
+      
+    }
+
+    useEffect(() => {
+      fetchnames();
+    },[])
 
     //the below code is to dynamically assign name variables to each name selected
     const initialStates = {}; // Initialize an object to store state variables
@@ -45,11 +62,18 @@ const Creditors = () => {
     
     const handleInputChange = (event, personname) => {
       const { value } = event.target;
-      setStates((prevState) => ({
-        ...prevState,
-        [personname]: value,
-      }));
-    };    
+    
+      // Regular expression for numeric validation (allowing decimals)
+      const numericRegex = /^[0-9]*(\.[0-9]*)?$/;
+    
+      // Check if the input value is a valid number (including decimals)
+      if (numericRegex.test(value)) {
+        setStates((prevState) => ({
+          ...prevState,
+          [personname]: value,
+        }));
+      }
+    };   
     const handleChange = (event) => {
     const {
       target: { value },
@@ -84,7 +108,7 @@ const Creditors = () => {
                     renderValue={(selected) => selected.join(', ')}
                     MenuProps={MenuProps}
                   >
-                    {names.map((name) => (
+                    {Names.map((name) => (
                       <MenuItem key={name} value={name}>
                         <Checkbox checked={personName.indexOf(name) > -1} />
                         <ListItemText primary={name} />

@@ -3,6 +3,9 @@ import { Icon } from '@mui/material';import { red } from '@mui/material/colors';
 import './Create.css'
 import { useState } from 'react';
 import axios from 'axios';
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
+
 
 const Create = () => {
 
@@ -73,7 +76,9 @@ const Create = () => {
                       setphone(inputValue);
                   }}} 
                 />  
-                    <Icon className='save1' sx={{color: red[800],fontSize:45}} fontSize='large' onClick={handleCreateEmployee}>add_circle</Icon>
+                <Fab color="error" className='icon' onClick={handleCreateEmployee} aria-label="add">
+                  <AddIcon />
+                </Fab>
                     
                     <div>
                     </div>

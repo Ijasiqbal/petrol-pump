@@ -10,6 +10,9 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { UseReadingcontext } from '../../../Readingcontext.js';
 import { format } from 'date-fns';
+import ErrorModal from '../../../ErrorModal';
+import ReactLoading from 'react-loading';
+
 
 
 const Opening = () => {
@@ -20,7 +23,9 @@ const Opening = () => {
     extragreen,
     setextragreen,
     extrapriemium,
-    setextrapriemium} = UseReadingcontext();
+    setextrapriemium,
+    api
+  } = UseReadingcontext();
 
   const [name, setname] = useState('');
   const [DU,setDU] = useState('')
@@ -28,6 +33,10 @@ const Opening = () => {
   const [openingReadingP, setopeningReadingP] = useState('');
   const [openingReadingD, setopeningReadingD] = useState('');
   const [employeenames,setemployeenames] = useState([]);
+
+  const [showmodal,setShowmodal] = useState(false);
+  const [loading,setLoading] = useState(false)
+
 
 
 
@@ -86,7 +95,7 @@ const resetStateAtMidnight = () => {
   async function fetchnames(){
 
     try{
-      const response = await axios.get('http://127.0.0.1:8000/api/employee/');
+      const response = await axios.get(api+'/api/employee/');
       const employeedata = response.data;
       const names = employeedata.map((employee) => {return employee.name});
       setemployeenames(names);
@@ -116,7 +125,7 @@ const resetStateAtMidnight = () => {
   
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/readings/',
+        api+'/api/readings/',
         requestData,
         {
           headers: {
@@ -127,8 +136,11 @@ const resetStateAtMidnight = () => {
   
       console.log('Data saved:', response.data);
       resetform();
+      setLoading(false)
     } catch (error) {
       console.error('Error saving data:', error);
+      setLoading(false);
+      setShowmodal(true)
     }
   };
 
@@ -263,10 +275,24 @@ const resetStateAtMidnight = () => {
                   value={openingReadingD}
                   onChange={handleopeningReadingDChange} 
                   /> 
-                <button type='submit' onClick={saveData} className='btn2 active-btn'>Add</button>
+                <button type='submit' onClick={()=>{
+                  setLoading(true)
+                  saveData();
+                }} className='btn2 active-btn'>Add</button>
+                <div>
+                  {showmodal && (<ErrorModal message = {"Record not created. Please check all fields and check whether server is down"} onClose = {()=>{setShowmodal(false)}} />)}
+                  {loading ? (
+                      <div className='loading-overlay'>
+                        <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>
+                      </div>
+                    ) : null}  
+                  
+                </div>
+                
                   
                    
             </div>
+            
 
         </div>
      );

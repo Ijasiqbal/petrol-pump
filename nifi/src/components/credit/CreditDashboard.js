@@ -12,6 +12,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { UseReadingcontext } from '../../Readingcontext';
 
 export default function CreditDashboard() {
   function createData(id, name,credit_amount,debit_amount,transaction_date,transaction_time) {
@@ -23,6 +24,10 @@ export default function CreditDashboard() {
   const [month,setmonth] = useState(null)
   const [date,setdate] = useState(null);
 
+  const {api} = UseReadingcontext();
+
+  let totalCredit = 0;
+  let totalDebit = 0;
 
   const [data, setData] = useState([]);
   const rows = data.map((item) =>
@@ -30,7 +35,7 @@ export default function CreditDashboard() {
   );
 
   async function fetchdata() {
-    fetch('http://127.0.0.1:8000/api/transactions/')
+    fetch(api+'/api/transactions/')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -48,7 +53,7 @@ export default function CreditDashboard() {
   async function fetchnames(){
 
     try{
-      const response = await axios.get('http://127.0.0.1:8000/api/creditors/');
+      const response = await axios.get(api+'/api/creditors/');
       const creditorsdata = response.data;
       const names = creditorsdata.map((creditor) => {return creditor.name});
       setCreditors(names);
@@ -79,7 +84,11 @@ export default function CreditDashboard() {
         id="demo-simple-select"
         value={name}
         label="Filler"
-        onChange={(e) => {setname(e.target.value)}}
+        onChange={(e) => {
+          setname(e.target.value)
+          totalCredit=0;
+          totalDebit=0;
+        }}
       >
         <MenuItem value={null}>select all</MenuItem>
         {Creditors.map((creditor) => (
@@ -95,7 +104,11 @@ export default function CreditDashboard() {
         id="demo-simple-select"
         value={month}
         label="Age"
-        onChange={(e) => {setmonth(e.target.value)}}
+        onChange={(e) => {
+          setmonth(e.target.value)
+          totalCredit=0;
+          totalDebit=0;
+        }}
       >
         <MenuItem value={null}>Select All Months</MenuItem>
         <MenuItem value="01">January</MenuItem>
@@ -120,7 +133,11 @@ export default function CreditDashboard() {
         id="filter-by-date-select"
         value={date}
         label="Filter by Date"
-        onChange={(e) => {setdate(e.target.value)}}
+        onChange={(e) => {
+          setdate(e.target.value);
+          totalCredit=0;
+          totalDebit=0;
+        }}
       >
         <MenuItem value={null}>All Dates</MenuItem>
         {
@@ -151,6 +168,14 @@ export default function CreditDashboard() {
               const rowDate = row.transaction_date.split('-')[2];
               // Add a conditional check to filter rows by name
               if ((name === null || row.name === name) && (date === null || rowDate === date) && (month === null || month === rowMonth)) {
+                const creditAmount = parseFloat(row.credit_amount);
+                const debitAmount = parseFloat(row.debit_amount);
+                if (!isNaN(creditAmount)) {
+                  totalCredit += creditAmount;
+                }
+                if (!isNaN(debitAmount)) {
+                  totalDebit += debitAmount;
+                }
                 return (
                   <TableRow
                     key={row.id}
@@ -160,8 +185,8 @@ export default function CreditDashboard() {
                       {row.id}
                     </TableCell>
                     <TableCell align="right">{row.name}</TableCell>
-                    <TableCell align="right">{row.credit_amount}</TableCell>
-                    <TableCell align="right">{row.debit_amount}</TableCell>
+                    <TableCell align="right" style={{color:"red"}}>{row.credit_amount}</TableCell>
+                    <TableCell align="right" style={{color:"green"}}>{row.debit_amount}</TableCell>
                     <TableCell align="right">{row.transaction_date}</TableCell>
                     <TableCell align="right">{row.transaction_time}</TableCell>
                   </TableRow>
@@ -173,6 +198,9 @@ export default function CreditDashboard() {
           </TableBody>
         </Table>
       </TableContainer>
+      <div>
+        <h6>Outstanding amount:{totalCredit-totalDebit}</h6>
+      </div>
       </>
   );
 }

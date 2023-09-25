@@ -1,5 +1,5 @@
 .form{
-    display: flex;
+    margin-top: 20px;
 }
 .save1{
     margin-top: 5px;
@@ -11,4 +11,5 @@
 }
 .heading3{
     margin: 10px;
+    margin-left: 0;
 }

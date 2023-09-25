@@ -9,6 +9,9 @@ import AddIcon from '@mui/icons-material/Add';
 import './Credit.css';
 import axios from 'axios';
 import { format } from 'date-fns';
+import ErrorModal from '../../ErrorModal';
+import ReactLoading from 'react-loading';
+import { UseReadingcontext } from '../../Readingcontext';
 
 
 
@@ -20,16 +23,24 @@ const Credit = () => {
     const [creditAmount,setCreditAmount] = useState('');
     const [Creditors,setCreditors] = useState([])
 
+    const [ErrorMsg,setErrorMsg] = useState('error updating database. please take note of it and try again later');
+    const [showmodal,setShowmodal] = useState(false);
+    const [loading,setLoading] = useState(false)
+
+    const {api} = UseReadingcontext();
+
+
     async function fetchnames(){
 
       try{
-        const response = await axios.get('http://127.0.0.1:8000/api/creditors/');
+        const response = await axios.get(api+'/api/creditors/');
         const creditorsdata = response.data;
         const names = creditorsdata.map((creditor) => {return creditor.name});
         setCreditors(names);
         console.log('names',names)
       }catch(error){
         console.error('Error fetching creditors names:', error);
+        
       }
       
     }
@@ -50,7 +61,7 @@ const Credit = () => {
     
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/api/transactions/',
+          api+'/api/transactions/',
           requestData,
           {
             headers: {
@@ -61,8 +72,11 @@ const Credit = () => {
     
         console.log('Data saved:', response.data);
         resetform();
+        setLoading(false)
       } catch (error) {
         console.error('Error saving data:', error);
+        setShowmodal(true);
+        setLoading(false)
       }
     };
 
@@ -98,7 +112,7 @@ const Credit = () => {
                 <TextField
                   sx={{ maxWidth: 200 }}
                   id="credit amount"
-                  label="Amount"
+                  label="Credit Amount"
                   value={creditAmount}
                   onChange={(e) => {
                     const newValue = e.target.value;
@@ -109,9 +123,21 @@ const Credit = () => {
                   }}
                 />
 
-                <Fab color="error" className='icon' onClick={saveData} aria-label="add">
+                <Fab color="error" className='icon' onClick={()=>{
+                  setLoading(true)
+                  saveData()
+                }} aria-label="add">
                   <AddIcon />
                 </Fab>
+            </div>
+            <div>
+              {showmodal && (<ErrorModal message = {ErrorMsg} onClose = {()=>{setShowmodal(false)}} />)}
+              {loading ? (
+                  <div className='loading-overlay'>
+                    <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>
+                  </div>
+                ) : null}  
+              
             </div>
         </div>
      );

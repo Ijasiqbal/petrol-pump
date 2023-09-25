@@ -8,12 +8,16 @@ export const ReadingProvider = ({ children }) => {
     const [extragreen,setextragreen] = useState(null);
     const [extrapriemium,setextrapriemium] = useState(null);
 
+    const api = 'https://fuel-station-backend-production.up.railway.app'
 
-    const [refreshPage,setrefreshPage] = useState(false)
+
+
+    //const [refreshPage,setrefreshPage] = useState(false)
+    let refreshPage = false
 
     return(
         <Readingcontext.Provider
-        value = {{petrol,setpetrol,diesel,setdiesel,extragreen,setextragreen,extrapriemium,setextrapriemium,refreshPage,setrefreshPage}}
+        value = {{petrol,setpetrol,diesel,setdiesel,extragreen,setextragreen,extrapriemium,setextrapriemium,refreshPage,api}}
         >
         { children }
         </Readingcontext.Provider>

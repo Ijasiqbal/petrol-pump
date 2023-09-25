@@ -4,12 +4,21 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import './CreateCredit.css';
 import axios from 'axios';
+import ErrorModal from '../../ErrorModal';
+import ReactLoading from 'react-loading';
+import { UseReadingcontext } from "../../Readingcontext";
 
 
 
 const CreateCredit = () => {
-
+    
     const [name,setname] = useState('')
+
+    const [ErrorMsg,setErrorMsg] = useState('error updating database. please take note of it and try again later');
+    const [showmodal,setShowmodal] = useState(false);
+    const [loading,setLoading] = useState(false)
+
+    const {api} = UseReadingcontext();
 
     const handleCreateCredit = () => {
       // Create an object with the creditor data
@@ -20,16 +29,18 @@ const CreateCredit = () => {
   
       // Make a POST request to create a new creditor
       axios
-        .post('http://127.0.0.1:8000/api/creditors/', creditor)
+        .post(api+'/api/creditors/', creditor)
         .then((response) => {
           console.log('creditor created:', response.data);
           // Clear the input fields after successful creation
           setname('');
-          //setError(null);
+          setLoading(false)
+
         })
         .catch((error) => {
           console.error('Error creating creditor:', error);
-          //setError('Record not created');
+          setShowmodal(true);
+          setLoading(false)
         });
     };
 
@@ -46,9 +57,18 @@ const CreateCredit = () => {
                   onChange={(e) => {setname(e.target.value)}} 
                 />
 
-                <Fab color="error" className='icon' onClick={handleCreateCredit} aria-label="add">
+                <Fab color="error" className='icon' onClick={()=>{setLoading(true);handleCreateCredit()}} aria-label="add">
                   <AddIcon />
                 </Fab>
+            </div>
+            <div>
+              {showmodal && (<ErrorModal message = {ErrorMsg} onClose = {()=>{setShowmodal(false)}} />)}
+              {loading ? (
+                  <div className='loading-overlay'>
+                    <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>
+                  </div>
+                ) : null}  
+              
             </div>
         </div>
      );

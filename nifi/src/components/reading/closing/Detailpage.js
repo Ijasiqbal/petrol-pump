@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 
 
 
-const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
+const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPage}) => {
     let expectedValue = 0;
     let receivedValue = 0;
     let shortage = 0;
@@ -33,7 +33,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
 
     const [Creditors,setCreditors] = useState([])
     const [state, setstate] = useState([]); // Object to store name: amount pairs
-    const [count,setcount] = useState(0)
+    const [count,setcount] = useState(0);
+    
 
 
 
@@ -56,13 +57,14 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
         return sum;
     }  
 
-    const {refreshPage,
-           setrefreshPage,
+    const {//refreshPage,
+           //setrefreshPage,
            petrol,
            diesel,
            extragreen,
            extrapriemium,
-    } = UseReadingcontext()
+           api,
+    } = UseReadingcontext();
 
     function putdata(){
 
@@ -84,12 +86,13 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
         };
         console.log('Updating record with fillerid', fillerid, 'Data:', dataobject)
 
-        axios.put(`http://127.0.0.1:8000/api/readings/${fillerid}/`, dataobject)
+        axios.put(api+`/api/readings/${fillerid}/`, dataobject)
         .then((response) => {
             console.log('database updated',response.data);
+            let refresh = !refreshPage
+            setrefreshPage(refresh)
             setdetailpage(false);
-            
-        })
+      })
         .catch((error) => {
             console.error('Error updating database:', error);
         })
@@ -108,9 +111,11 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
             }
             console.log('updating request for credit transaction',dataobject)
             axios
-              .post('http://127.0.0.1:8000/api/transactions/', dataobject)
+              .post(api+'/api/transactions/', dataobject)
               .then((response) => {
                 console.log('Database updated', response.data);
+                let refresh = !refreshPage
+                setrefreshPage(refresh)
               })
               .catch((error) => {
                 console.error('Error updating database:', error);
@@ -121,7 +126,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
 
     async function fetchdata(){
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/readings/${fillerid}/`);
+            const response = await axios.get(api+`/api/readings/${fillerid}/`);
             const responseData = response.data;
             setopenP(responseData.openingP);
             setopenD(responseData.openingD);
@@ -156,7 +161,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
     async function fetchnames(){
 
         try{
-          const response = await axios.get('http://127.0.0.1:8000/api/creditors/');
+          const response = await axios.get(api+'/api/creditors/');
           const creditorsdata = response.data;
           const names = creditorsdata.map((creditor) => {return creditor.name});
           setCreditors(names);
@@ -307,8 +312,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
                     shortage=(expected()-received());
                     totalcredit=calcTotalcredit();
                     putdata();
-                    setrefreshPage(!refreshPage);
                     postcredit();
+                    refreshPage = !refreshPage
                 }}>save</button>
             </div>
 
@@ -318,6 +323,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,}) => {
                   color="error"
                   aria-label="close"
                   onClick={() => {
+                    setrefreshPage(!refreshPage);
                     setdetailpage(false);
                 }}
                 >

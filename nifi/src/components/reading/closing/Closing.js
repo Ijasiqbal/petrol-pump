@@ -18,14 +18,15 @@ const [close,setclose] = useState('');
 
 const [data,setdata] = useState([]);
 
-const {refreshPage} = UseReadingcontext()
+const {api} = UseReadingcontext()
+const [refreshPage,setrefreshPage] = useState('');
 
 const[fillername,setfillername] = useState('')
 const[fillerid,setfillerid] = useState(null)
 
 const fetchdata = async() => {
     try{
-        const response = await axios.get('http://127.0.0.1:8000/api/readings/');
+        const response = await axios.get(api+'/api/readings/');
         console.log('Response data:', response.data);
         setdata(response.data);
     }
@@ -51,7 +52,8 @@ useEffect(() => {
                               <Box className='box'>
                                 <h4 className='nametag'>
                                     {item.name}    
-                                </h4>                  
+                                </h4>
+                                <h6>nozzle:{item.nossle}</h6>                  
                                 <button className='btn2'onClick={()=> {
                                     setdetailpage(true);
                                     setfillername(item.name)
@@ -65,7 +67,7 @@ useEffect(() => {
                 ))}
                 
             </div>
-            {detailpage && <Detailpage setdetailpage={setdetailpage} fillername={fillername} fillerid={fillerid} />
+            {detailpage && <Detailpage refreshPage={refreshPage} setrefreshPage={setrefreshPage} setdetailpage={setdetailpage} fillername={fillername} fillerid={fillerid} />
             }
             
         </div>

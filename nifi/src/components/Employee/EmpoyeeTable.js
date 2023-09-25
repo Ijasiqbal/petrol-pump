@@ -12,6 +12,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { UseReadingcontext } from '../../Readingcontext';
 
 export default function EmployeeTable() {
   function createData(id, name, dispensingUnit, expected, received,shortage,date,time) {
@@ -23,6 +24,10 @@ export default function EmployeeTable() {
   const [month,setmonth] = useState(null)
   const [date,setdate] = useState(null);
 
+  const {api} = UseReadingcontext();
+
+  let sum = 0;
+
 
   const [data, setData] = useState([]);
   const rows = data.map((item) =>
@@ -30,7 +35,7 @@ export default function EmployeeTable() {
   );
 
   async function fetchdata() {
-    fetch('http://127.0.0.1:8000/api/readings/')
+    fetch(api+'/api/readings/')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -48,7 +53,7 @@ export default function EmployeeTable() {
   async function fetchnames(){
 
     try{
-      const response = await axios.get('http://127.0.0.1:8000/api/employee/');
+      const response = await axios.get(api+'/api/employee/');
       const employeedata = response.data;
       const names = employeedata.map((employee) => {return employee.name});
       setemployeenames(names);
@@ -78,7 +83,10 @@ export default function EmployeeTable() {
         id="demo-simple-select"
         value={name}
         label="Filler"
-        onChange={(e) => {setname(e.target.value)}}
+        onChange={(e) => {
+          setname(e.target.value);
+          sum=0;
+        }}
       >
         <MenuItem value={null}>select all</MenuItem>
         {employeenames.map((employeename) => (
@@ -94,7 +102,10 @@ export default function EmployeeTable() {
         id="demo-simple-select"
         value={month}
         label="Age"
-        onChange={(e) => {setmonth(e.target.value)}}
+        onChange={(e) => {
+          setmonth(e.target.value);
+          sum=0;
+        }}
       >
         <MenuItem value={null}>Select All Months</MenuItem>
         <MenuItem value="01">January</MenuItem>
@@ -119,7 +130,10 @@ export default function EmployeeTable() {
         id="filter-by-date-select"
         value={date}
         label="Filter by Date"
-        onChange={(e) => {setdate(e.target.value)}}
+        onChange={(e) => {
+          setdate(e.target.value);
+          sum=0;
+        }}
       >
         <MenuItem value={null}>All Dates</MenuItem>
         {
@@ -152,6 +166,7 @@ export default function EmployeeTable() {
               const rowDate = row.date.split('-')[2];
               // Add a conditional check to filter rows by name
               if ((name === null || row.name === name) && (date === null || rowDate === date) && (month === null || month === rowMonth)) {
+                sum = sum+row.shortage
                 return (
                   <TableRow
                     key={row.id}
@@ -176,6 +191,9 @@ export default function EmployeeTable() {
           </TableBody>
         </Table>
       </TableContainer>
+      <div>
+        <h6>Total Shortage:{sum}</h6>
+      </div>
       </>
   );
 }

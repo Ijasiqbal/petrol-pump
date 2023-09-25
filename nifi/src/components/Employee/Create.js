@@ -1,10 +1,13 @@
 import TextField from '@mui/material/TextField';
-import { Icon } from '@mui/material';import { red } from '@mui/material/colors';
 import './Create.css'
-import { useState } from 'react';
+import { useState ,useEffect } from 'react';
 import axios from 'axios';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import { UseReadingcontext } from '../../Readingcontext';
+import ErrorModal from '../../ErrorModal';
+import ReactLoading from 'react-loading';
+
 
 
 const Create = () => {
@@ -13,6 +16,37 @@ const Create = () => {
     const [age,setage] = useState(null);
     const [phone,setphone] = useState(null);
     const [error, setError] = useState(null);
+    const [employeenames,setemployeenames] = useState([]);
+
+    const [showmodal,setShowmodal] = useState(false);
+    const [loading,setLoading] = useState(false)
+
+
+
+    const {api} = UseReadingcontext();
+
+    //function createEmployee(){
+    //  if (employeenames.includes(name)) {
+    //    return <ErrorModal message={"This employee name already exist"} onClose = {()=>{setShowmodal(false)}}/>
+    //  }else {
+    //    handleCreateEmployee();
+    //  }
+    //}
+
+    async function fetchnames(){
+
+      try{
+        const response = await axios.get(api+'/api/employee/');
+        const employeedata = response.data;
+        const names = employeedata.map((employee) => {return employee.name});
+        setemployeenames(names);
+        console.log('names',names)
+      }catch(error){
+        console.error('Error fetching employee names:', error);
+      }
+      
+    }
+    
     
 
     const handleCreateEmployee = () => {
@@ -26,7 +60,7 @@ const Create = () => {
     
         // Make a POST request to create a new employee
         axios
-          .post('http://127.0.0.1:8000/api/employee/', newEmployee)
+          .post(api+'/api/employee/', newEmployee)
           .then((response) => {
             console.log('Employee created:', response.data);
             // Clear the input fields after successful creation
@@ -34,12 +68,19 @@ const Create = () => {
             setage('');
             setphone('');
             setError(null);
+            setLoading(false)
           })
           .catch((error) => {
             console.error('Error creating employee:', error);
             setError('Record not created');
+            setLoading(false)
+            setShowmodal(true);
           });
       };
+
+      useEffect(() => {
+        fetchnames();
+      }, []);
 
     return ( 
         <div>
@@ -76,16 +117,25 @@ const Create = () => {
                       setphone(inputValue);
                   }}} 
                 />  
-                <Fab color="error" className='icon' onClick={handleCreateEmployee} aria-label="add">
+                <Fab color="error" className='icon' onClick={()=>{
+                 setLoading(true);
+                 handleCreateEmployee();
+                }} aria-label="add">
                   <AddIcon />
                 </Fab>
-                    
-                    <div>
-                    </div>
  
             </div>
             <div>
                 {error && <p className="error-message">{error}</p>} {/* Display error message if error state is set */}
+            </div>
+            <div>
+              {showmodal && (<ErrorModal message = {'please enter valid data in the fields and check whether the server is running'} onClose = {()=>{setShowmodal(false)}} />)}
+              {loading ? (
+                  <div className='loading-overlay'>
+                    <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>
+                  </div>
+                ) : null}  
+              
             </div>
 
         </div>

@@ -65,11 +65,6 @@ export default function CreditDashboard() {
   }
   
 
-  const handleNameChange = (event) => {
-    setname(event.target.value);
-  };
-
-
   useEffect(() => {
     fetchdata();
     fetchnames();

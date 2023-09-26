@@ -35,12 +35,62 @@ const Opening = () => {
   const [employeenames,setemployeenames] = useState([]);
 
   const [showmodal,setShowmodal] = useState(false);
-  const [loading,setLoading] = useState(false)
+  const [showmodal2,setShowmodal2] = useState(false);
+  const [loading,setLoading] = useState(false);
+  const [componentKey, setComponentKey] = useState(0);
 
+  const fetchPrices = async () => {
+  
+    try {
+      const response = await axios.get(api + '/api/prices/1/');
+      
+      const priceData = response.data;
+  
+      const { petrol, diesel, extragreen, extrapremium } = priceData;
+  
+      // Update state variables with the fetched prices
+      setpetrol(petrol);
+      setdiesel(diesel);
+      setextragreen(extragreen);
+      setextrapriemium(extrapremium);
+  
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+    }
+  };
 
-
-
-  // Function to reset the state values at midnight
+  const savePrices = async () => {
+    setLoading(true);
+  
+    const requestData = {
+      petrol: petrol,
+      diesel: diesel,
+      extragreen: extragreen,
+      extrapremium: extrapriemium,
+    };
+  
+    console.log('Prices being sent:', requestData);
+  
+    try {
+      const response = await axios.put(
+        api + '/api/prices/1/',
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      console.log('Prices saved:', response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error saving prices:', error);
+      setLoading(false);
+      setShowmodal2(true);
+    }
+  };
+  
 const resetStateAtMidnight = () => {
   const now = new Date();
   const midnight = new Date(now);
@@ -55,7 +105,6 @@ const resetStateAtMidnight = () => {
     setextrapriemium(null);
   }, timeUntilMidnight);
 };
-
 
   const handleNameChange = (event) => {
     setname(event.target.value);
@@ -152,7 +201,7 @@ const resetStateAtMidnight = () => {
 
     return ( 
         <div className="open-form">
-          <div className='price'>
+          <div className='price' key={componentKey}>
           <TextField
             sx={{ maxWidth: 200 }}
             id="petrol-price"
@@ -213,6 +262,14 @@ const resetStateAtMidnight = () => {
               }
             }}
           />
+          <button type='submit' onClick={()=>{
+            savePrices();
+          }} className='btn2 active-btn'>save</button>
+
+          <button type='submit' onClick={()=>{
+            fetchPrices()
+            setComponentKey((prevKey) => prevKey + 1);
+          }} className='btn2 active-btn'>Prev</button>
           
           
           
@@ -281,6 +338,7 @@ const resetStateAtMidnight = () => {
                 }} className='btn2 active-btn'>Add</button>
                 <div>
                   {showmodal && (<ErrorModal message = {"Record not created. Please check all fields and check whether server is down"} onClose = {()=>{setShowmodal(false)}} />)}
+                  {showmodal2 && (<ErrorModal message = {"Fuel prices are not updated to the database"} onClose = {()=>{setShowmodal2(false)}} />)}
                   {loading ? (
                       <div className='loading-overlay'>
                         <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>

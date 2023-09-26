@@ -11,6 +11,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { format } from 'date-fns';
+import ErrorModal from '../../../ErrorModal';
 
 
 
@@ -34,6 +35,14 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [Creditors,setCreditors] = useState([])
     const [state, setstate] = useState([]); // Object to store name: amount pairs
     const [count,setcount] = useState(0);
+
+    const [showmodal,setshowmodal] = useState(false);
+
+    function checkprices(){
+      if (!petrol || !diesel || !extragreen || !extrapriemium) {
+        setshowmodal(true)
+      }
+    }
     
 
 
@@ -57,9 +66,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         return sum;
     }  
 
-    const {//refreshPage,
-           //setrefreshPage,
-           petrol,
+    const {petrol,
            diesel,
            extragreen,
            extrapriemium,
@@ -177,7 +184,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     useEffect(() => {
         fetchdata();
         fetchnames();
-    },[])
+        checkprices();
+    },[petrol, diesel, extragreen, extrapriemium])
 
     
     return ( 
@@ -329,6 +337,9 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                 >
                   <CloseIcon />
                 </Fab>
+            </div>
+            <div>
+                {showmodal && (<ErrorModal message = {'Fuel prices is empty. Please enter the fuel prices'} onClose = {()=>{setshowmodal(false)}} />)}   
             </div>
 
         </div>

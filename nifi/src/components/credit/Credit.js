@@ -25,6 +25,7 @@ const Credit = () => {
 
     const [ErrorMsg,setErrorMsg] = useState('error updating database. please take note of it and try again later');
     const [showmodal,setShowmodal] = useState(false);
+    const [showmodal1,setShowmodal1] = useState(false);
     const [loading,setLoading] = useState(false)
 
     const {api} = UseReadingcontext();
@@ -43,6 +44,14 @@ const Credit = () => {
         
       }
       
+    }
+    function validateSave(){
+      if (name === '' || creditAmount === '') {
+        setShowmodal1(true);
+        setLoading(false);
+      }else {
+        saveData();
+      }
     }
 
     const saveData = async () => {
@@ -125,13 +134,15 @@ const Credit = () => {
 
                 <Fab color="error" className='icon' onClick={()=>{
                   setLoading(true)
-                  saveData()
+                  validateSave();
                 }} aria-label="add">
                   <AddIcon />
                 </Fab>
             </div>
             <div>
               {showmodal && (<ErrorModal message = {ErrorMsg} onClose = {()=>{setShowmodal(false)}} />)}
+              {showmodal1 && (<ErrorModal message = {"Please ensure that you have entered data in all the fields."} onClose = {()=>{setShowmodal1(false)}} />)}
+
               {loading ? (
                   <div className='loading-overlay'>
                     <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>

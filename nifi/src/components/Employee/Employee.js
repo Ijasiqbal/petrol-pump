@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import './Employee.css'
-import Dashboard from './Dashboard';
+import Dashboard from '../reading/Dashboard';
 import Create from './Create';
+import EmployeeData from './EmployeeData';
 const Employee = () => {
 
     const [active,setactive] = useState('create')
@@ -15,14 +16,14 @@ const Employee = () => {
                     className={active==="create" ? "btn2 active-btn" : "btn2"}
                     >Create</button>
                     <button
-                    onClick={() =>{setactive("dashboard")}}
-                        className={active==="dashboard" ? "btn2 active-btn" : "btn2"}                    
-                    >Employee Dashboard</button>
+                    onClick={() =>{setactive("employeeData")}}
+                        className={active==="employeeData" ? "btn2 active-btn" : "btn2"}                    
+                    >Employee Data</button>
                 </ul>
             </div>
             <div className="content">
                 { active==="create" && <Create/>}
-                { active==="dashboard" && <Dashboard />}
+                { active==="employeeData" && <EmployeeData />}
             </div>
 
         </div>

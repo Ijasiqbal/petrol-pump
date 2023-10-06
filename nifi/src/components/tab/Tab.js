@@ -6,6 +6,7 @@ import Stock from '../stock/Stock';
 import Reading from '../reading/Reading';
 import Employee from '../Employee/Employee';
 import CreditPage from '../credit/CreditPage';
+import Sales from '../Sales/Sales';
 
 function ControlledTabsExample() {
   const [key, setKey] = useState('');
@@ -27,7 +28,7 @@ function ControlledTabsExample() {
         <Employee />
       </Tab>
       <Tab eventKey="sales" title="Sales">
-        Tab content for Profile
+        <Sales />
       </Tab>
       <Tab eventKey="reading" title="Reading">
         <Reading />        

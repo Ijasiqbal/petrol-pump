@@ -8,8 +8,8 @@ export const ReadingProvider = ({ children }) => {
     const [extragreen,setextragreen] = useState(null);
     const [extrapriemium,setextrapriemium] = useState(null);
 
-    const api = 'https://fuel-station-backend-production.up.railway.app'
-    //const api = 'http://127.0.0.1:8000/'
+    //const api = 'https://fuel-station-backend-production.up.railway.app'
+    const api = 'http://127.0.0.1:8000/'
 
     return(
         <Readingcontext.Provider

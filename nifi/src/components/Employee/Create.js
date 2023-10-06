@@ -19,19 +19,22 @@ const Create = () => {
     const [employeenames,setemployeenames] = useState([]);
 
     const [showmodal,setShowmodal] = useState(false);
+    const [showmodal1,setShowmodal1] = useState(false);
+
     const [loading,setLoading] = useState(false)
 
 
 
     const {api} = UseReadingcontext();
 
-    //function createEmployee(){
-    //  if (employeenames.includes(name)) {
-    //    return <ErrorModal message={"This employee name already exist"} onClose = {()=>{setShowmodal(false)}}/>
-    //  }else {
-    //    handleCreateEmployee();
-    //  }
-    //}
+    function createEmployee(){
+      if (employeenames.includes(name)) {
+        setShowmodal1(true)
+        setLoading(false)
+      }else {
+        handleCreateEmployee();
+      }
+    }
 
     async function fetchnames(){
 
@@ -106,7 +109,6 @@ const Create = () => {
                   }}} 
                 />
                 <TextField 
-                  
                   id="outlined-basic" 
                   label="Phone Number" 
                   value={phone}
@@ -119,17 +121,18 @@ const Create = () => {
                 />  
                 <Fab color="error" className='icon' onClick={()=>{
                  setLoading(true);
-                 handleCreateEmployee();
+                 createEmployee();
                 }} aria-label="add">
                   <AddIcon />
                 </Fab>
- 
             </div>
             <div>
                 {error && <p className="error-message">{error}</p>} {/* Display error message if error state is set */}
             </div>
             <div>
-              {showmodal && (<ErrorModal message = {'please enter valid data in the fields and check whether the server is running'} onClose = {()=>{setShowmodal(false)}} />)}
+              {showmodal && (<ErrorModal message = {'please enter valid data in the fields nd check whether the server is running'} onClose = {()=>{setShowmodal(false)}} />)}
+              {showmodal1 && (<ErrorModal message={"This employee name already exist"} onClose = {()=>{setShowmodal1(false)}}/>)}
+
               {loading ? (
                   <div className='loading-overlay'>
                     <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>

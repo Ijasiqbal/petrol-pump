@@ -15,8 +15,8 @@ import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
 
 export default function EmployeeTable() {
-  function createData(id, name, dispensingUnit, expected, received,shortage,date,time) {
-    return { id, name, dispensingUnit, expected, received,shortage,date,time};
+  function createData(id, name, dispensingUnit,nossle,cash,card,paytm,oil,credit,expected, received,shortage,date,time) {
+    return { id, name, dispensingUnit,nossle,cash,card,paytm,oil,credit,expected, received,shortage,date,time};
   }
 
   const [name, setname] = useState(null);
@@ -30,8 +30,7 @@ export default function EmployeeTable() {
 
 
   const [data, setData] = useState([]);
-  const rows = data.map((item) =>
-    createData(item.id, item.name, item.dispensingUnit, item.expected, item.received,item.shortage,item.date,item.time)
+  const rows = data.map((item) =>createData(item.id, item.name, item.dispensingUnit,item.nossle,item.cash,item.card,item.paytm,item.oil,item.credit, item.expected, item.received,item.shortage,item.date,item.time)
   );
 
   async function fetchdata() {
@@ -64,9 +63,7 @@ export default function EmployeeTable() {
     
   }
 
-  const handleNameChange = (event) => {
-    setname(event.target.value);
-  };
+
 
 
   useEffect(() => {
@@ -158,6 +155,12 @@ export default function EmployeeTable() {
               <TableCell align="right">Shortage</TableCell>
               <TableCell align="right">Date</TableCell>
               <TableCell align="right">Time</TableCell>
+              <TableCell align="right">Cash</TableCell>
+              <TableCell align="right">Card</TableCell>
+              <TableCell align="right">Paytm</TableCell>
+              <TableCell align="right">Oil Sales</TableCell>
+              <TableCell align="right">Credit</TableCell>
+              <TableCell align="right">Nozzle</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -182,6 +185,12 @@ export default function EmployeeTable() {
                     <TableCell align="right">{row.shortage}</TableCell>
                     <TableCell align="right">{row.date}</TableCell>
                     <TableCell align="right">{row.time}</TableCell>
+                    <TableCell align="right">{row.cash}</TableCell>
+                    <TableCell align="right">{row.card}</TableCell>
+                    <TableCell align="right">{row.paytm}</TableCell>
+                    <TableCell align="right">{row.oil}</TableCell>
+                    <TableCell align="right">{row.credit}</TableCell>
+                    <TableCell align="right">{row.nossle}</TableCell>
                   </TableRow>
                 );
               }

@@ -26,6 +26,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [cash,setcash] = useState(null);
     const [card,setcard] = useState(null); 
     const [paytm,setpaytm] = useState(null);
+    const [oil,setOil] = useState(null)
 
 
     const [openP,setopenP] = useState(null);
@@ -37,6 +38,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [count,setcount] = useState(0);
 
     const [showmodal,setshowmodal] = useState(false);
+    const [showmodal1,setshowmodal1] = useState(false);
+
 
     function checkprices(){
       if (!petrol || !diesel || !extragreen || !extrapriemium) {
@@ -81,6 +84,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
             cash:cash,
             card:card,
             paytm:paytm,
+            oil:oil,
             credit:parseFloat(totalcredit),
             expected:expectedValue,
             received:receivedValue,
@@ -129,6 +133,16 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
               });
             }
     }
+    function validateSave(){
+      if (closeP === null || closeD === null || cash === null || card === null || paytm === null) {
+        setshowmodal1(true)
+      } else {
+        putdata();
+        postcredit();
+        setrefreshPage(!refreshPage);
+
+      }
+    }
     
 
     async function fetchdata(){
@@ -152,7 +166,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         } else if (DU === 3) {
             return (closeP - openP) * petrol + (closeD - openD) * extrapriemium;
         } else if (DU === 4) {
-            return (closeP - openP) * diesel + (closeD - openD) * extragreen;
+            return (closeP - openP) * petrol + (closeD - openD) * extragreen;
         }
     }
 
@@ -160,9 +174,10 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         const cashValue = parseFloat(cash) || 0; // Convert to a float or use 0 if it's not a valid number
         const cardValue = parseFloat(card) || 0;
         const paytmValue = parseFloat(paytm) || 0;
+        const oilValue = parseFloat(oil) || 0;
         let totalcredit = parseFloat(calcTotalcredit()) || 0;
     
-    return cashValue + cardValue + paytmValue + totalcredit ;
+    return cashValue + cardValue + paytmValue + totalcredit+ oilValue ;
     }
 
     async function fetchnames(){
@@ -304,6 +319,19 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                             }                        
                         }}
                     />
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Oil Sales" 
+                        variant="outlined"
+                        value={oil}
+                        size="small"
+                        onChange={(e)=>{
+                            const newValue = e.target.value;
+                            if (/^\d*\.?\d*$/.test(newValue)) {
+                              setOil(newValue);
+                            }                        
+                        }}
+                    />
                     <div className="calc">
                     <label className="expected">Expected:{expected()}</label>
                     <br />
@@ -319,9 +347,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                     receivedValue=received();
                     shortage=(expected()-received());
                     totalcredit=calcTotalcredit();
-                    putdata();
-                    postcredit();
-                    refreshPage = !refreshPage
+                    validateSave();
                 }}>save</button>
             </div>
 
@@ -340,6 +366,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
             </div>
             <div>
                 {showmodal && (<ErrorModal message = {'Fuel prices is empty. Please enter the fuel prices'} onClose = {()=>{setshowmodal(false)}} />)}   
+                {showmodal1 && (<ErrorModal message = {'Please ensure that you have entered data in all the fields'} onClose = {()=>{setshowmodal1(false)}} />)}   
+
             </div>
 
         </div>

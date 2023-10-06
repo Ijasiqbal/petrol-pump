@@ -36,8 +36,9 @@ const Opening = () => {
 
   const [showmodal,setShowmodal] = useState(false);
   const [showmodal2,setShowmodal2] = useState(false);
+  const [showmodal3,setShowmodal3] = useState(false);
   const [loading,setLoading] = useState(false);
-  const [componentKey, setComponentKey] = useState(0);
+  const [componentKey, setComponentKey] = useState(1);
 
   const fetchPrices = async () => {
   
@@ -141,6 +142,18 @@ const resetStateAtMidnight = () => {
     setopeningReadingD('')
   }
 
+  function whatFuel() {
+    if (DU === 1 || DU === 2) {
+      return 'Diesel opening';
+    }
+    if (DU === 3) {
+      return 'Extra Premium opening';
+    }
+    if (DU === 4) {
+      return 'Extra Green opening';
+    }
+  }
+
   async function fetchnames(){
 
     try{
@@ -153,6 +166,15 @@ const resetStateAtMidnight = () => {
       console.error('Error fetching employee names:', error);
     }
     
+  }
+  function validateSave(){
+    if (name === '' || DU === '' || nossleValue === '' || openingReadingP === '' || openingReadingD === '') {
+      setLoading(false)
+      setShowmodal3(true)
+    }
+    else {
+      saveData();
+    }
   }
 
   const saveData = async () => {
@@ -196,7 +218,7 @@ const resetStateAtMidnight = () => {
   useEffect(() => {
     fetchnames();
     resetStateAtMidnight();
-  },[])
+  },[componentKey])
   
 
     return ( 
@@ -320,25 +342,27 @@ const resetStateAtMidnight = () => {
                 <br />                                           
                   <TextField 
                   id="outlined-basic1" 
-                  label="Opening reading" 
+                  label="Petrol Opening" 
                   variant="outlined"
                   value={openingReadingP}
                   onChange={handleopeningReadingPChange} 
                   />
                   <TextField 
                   id="outlined-basic2" 
-                  label="Opening reading" 
+                  label={whatFuel()} 
                   variant="outlined"
                   value={openingReadingD}
                   onChange={handleopeningReadingDChange} 
                   /> 
                 <button type='submit' onClick={()=>{
                   setLoading(true)
-                  saveData();
+                  validateSave();
                 }} className='btn2 active-btn'>Add</button>
                 <div>
                   {showmodal && (<ErrorModal message = {"Record not created. Please check all fields and check whether server is down"} onClose = {()=>{setShowmodal(false)}} />)}
                   {showmodal2 && (<ErrorModal message = {"Fuel prices are not updated to the database"} onClose = {()=>{setShowmodal2(false)}} />)}
+                  {showmodal3 && (<ErrorModal message = {"Please ensure that u have entered data in all the feilds"} onClose = {()=>{setShowmodal3(false)}} />)}
+
                   {loading ? (
                       <div className='loading-overlay'>
                         <ReactLoading type={"spokes"} color={'#000000'} height={'20%'} width={'20%'}/>

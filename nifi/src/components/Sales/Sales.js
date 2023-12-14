@@ -3,7 +3,7 @@ import Setopening from "./Setopening";
 import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
 import axios from "axios";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import axiosInstance from "../../utils/axiosInstance";
 
 const Sales = () => {
@@ -140,6 +140,17 @@ const Sales = () => {
       console.log('Error fetching credit transactions', error);
     }
   }
+  async function CalcOpeningBalance(){
+    try{
+      const response = await axiosInstance.get(api+'/api/sales/');
+      const salesdata = response.data;
+      console.log('salesdata',salesdata)
+      const closingBalance = salesdata.map((sale) => {return sale.closingBalance});
+      setOpeningBalance(closingBalance[salesdata.length-1]);
+    }catch(error){
+      console.error('Error fetching sales:', error);
+    }
+  }
   
 
   useEffect(() => {
@@ -235,7 +246,10 @@ const Sales = () => {
               setOpeningBalance(e.target.value)
             }}
           />
-          <button className="btn1">Calculate</button>
+          <button 
+          className="btn1"
+          onClick={CalcOpeningBalance}
+          >Calculate</button>
         </div>
       </div>
 

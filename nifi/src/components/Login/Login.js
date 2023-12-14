@@ -22,7 +22,7 @@ const Login = () => {
             console.log('response.data',response.data);
 
             localStorage.setItem('auth_token', JSON.stringify(response.data));
-            navigate('/');
+            navigate('/home');
         })
         .catch(err => {
             setError(err.response.data.error);

@@ -14,6 +14,9 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
 import './Dashboard.css'
+import { useNavigate } from 'react-router-dom';
+import useAxiosGet from '../../utils/useAxiosGet';
+import axiosInstance from '../../utils/axiosInstance';
 
 export default function Dashboard() {
   function createData(id, name, dispensingUnit,nossle,cash,card,paytm,oil,credit,expected, received,shortage,date,time) {
@@ -27,33 +30,14 @@ export default function Dashboard() {
 
   const {api} = UseReadingcontext();
 
+  const navigate = useNavigate();
+
   let sum = 0;
 
-
-  const [data, setData] = useState([]);
-  const rows = data.map((item) =>createData(item.id, item.name, item.dispensingUnit,item.nossle,item.cash,item.card,item.paytm,item.oil,item.credit, item.expected, item.received,item.shortage,item.date,item.time)
-  );
-
-  async function fetchdata() {
-    fetch(api+'/api/readings/')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-         // Sort the response data by id in ascending order
-        responseData.sort((a, b) => b.id - a.id);
-        setData(responseData);
-      })
-      .catch((error) => {});
-  }
-
   async function fetchnames(){
-
     try{
-      const response = await axios.get(api+'/api/employee/');
+      console.log('Headers:', axiosInstance.defaults.headers);
+      const response = await axiosInstance.get('/api/employee/');
       const employeedata = response.data;
       const names = employeedata.map((employee) => {return employee.name});
       setemployeenames(names);
@@ -61,8 +45,29 @@ export default function Dashboard() {
     }catch(error){
       console.error('Error fetching employee names:', error);
     }
-    
   }
+
+  //const {employeedata,loading,error} = useAxiosGet(api+'/api/employee/');
+  const [data, setData] = useState([]);
+  const rows = data.map((item) =>createData(item.id, item.name, item.dispensingUnit,item.nossle,item.cash,item.card,item.paytm,item.oil,item.credit, item.expected, item.received,item.shortage,item.date,item.time)
+  );
+
+  async function fetchdata() {
+
+    try {
+      const response = await axiosInstance.get('/api/readings/')
+      if (response.status !== 200) {
+        throw new Error('Network response was not ok');
+      }
+      const responseData = response.data;
+      responseData.sort((a, b) => b.id - a.id);
+      setData(responseData);
+      
+    } catch (error) {
+      console.error(error);      
+    }
+  }
+
 
 
 

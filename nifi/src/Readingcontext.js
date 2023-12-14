@@ -7,13 +7,28 @@ export const ReadingProvider = ({ children }) => {
     const [diesel,setdiesel] = useState(null);
     const [extragreen,setextragreen] = useState(null);
     const [extrapriemium,setextrapriemium] = useState(null);
+    const [refreshToken, setRefreshToken] = useState(null);
 
-    //const api = 'https://fuel-station-backend-production.up.railway.app'
+    //const api = 'https://fuel-station-backend-production.up.railway.app/'
     const api = 'http://127.0.0.1:8000/'
+
+    const [accessToken, setAccessToken] = useState(null);
 
     return(
         <Readingcontext.Provider
-        value = {{petrol,setpetrol,diesel,setdiesel,extragreen,setextragreen,extrapriemium,setextrapriemium,api}}
+        value = {{petrol,
+            setpetrol,
+            diesel,
+            setdiesel,
+            extragreen,
+            setextragreen,
+            extrapriemium,
+            setextrapriemium,
+            api,
+            accessToken,
+            setAccessToken,
+            refreshToken,
+            setRefreshToken}}
         >
         { children }
         </Readingcontext.Provider>

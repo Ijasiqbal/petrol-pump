@@ -8,6 +8,7 @@ import * as React from 'react';
 import './closing.css'
 import Detailpage from './Detailpage.js';
 import { UseReadingcontext } from '../../../Readingcontext';
+import axiosInstance from '../../../utils/axiosInstance.js';
 
 
 const Closing = () => {
@@ -26,7 +27,7 @@ const[fillerid,setfillerid] = useState(null)
 
 const fetchdata = async() => {
     try{
-        const response = await axios.get(api+'/api/readings/');
+        const response = await axiosInstance.get(api+'/api/readings/');
         console.log('Response data:', response.data);
         setdata(response.data);
     }

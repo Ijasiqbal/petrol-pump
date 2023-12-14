@@ -13,10 +13,13 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
+import axiosInstance from '../../utils/axiosInstance';
+import Switch from '@mui/material/Switch';
+import { de } from 'date-fns/locale';
 
 export default function CreditDashboard() {
-  function createData(id, name,credit_amount,debit_amount,transaction_date,transaction_time) {
-    return {id, name,credit_amount,debit_amount,transaction_date,transaction_time};
+  function createData(id, name,credit_amount,debit_amount,modeOfPayment,markAsPaid,transaction_date,transaction_time) {
+    return {id, name,credit_amount,debit_amount,modeOfPayment,markAsPaid,transaction_date,transaction_time};
   }
 
   const [name, setname] = useState(null);
@@ -28,32 +31,34 @@ export default function CreditDashboard() {
 
   let totalCredit = 0;
   let totalDebit = 0;
+  let unpaidCheques = 0;
 
   const [data, setData] = useState([]);
   const rows = data.map((item) =>
-    createData(item.id, item.name,item.credit_amount,item.debit_amount,item.transaction_date,item.transaction_time)
+    createData(item.id, item.name,item.credit_amount,item.debit_amount,item.modeOfPayment,item.markAsPaid,item.transaction_date,item.transaction_time)
   );
 
   async function fetchdata() {
-    fetch(api+'/api/transactions/')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((responseData) => {
-         // Sort the response data by id in ascending order
-        responseData.sort((a, b) => b.id - a.id);
-        setData(responseData);
-      })
-      .catch((error) => {});
+    try {
+      const response = await axiosInstance.get('/api/transactions/');
+  
+      if (response.status !== 200) {
+        throw new Error('Network response was not ok');
+      }
+      const responseData = response.data;
+  
+      // Sort the response data by id in ascending order
+      responseData.sort((a, b) => b.id - a.id);
+      setData(responseData);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function fetchnames(){
 
     try{
-      const response = await axios.get(api+'/api/creditors/');
+      const response = await axiosInstance.get(api+'/api/creditors/');
       const creditorsdata = response.data;
       const names = creditorsdata.map((creditor) => {return creditor.name});
       setCreditors(names);
@@ -62,6 +67,20 @@ export default function CreditDashboard() {
       console.error('Error fetching creditors names:', error);
     }
     
+  }
+  async function handleSwitchChange(event, id) {
+    try {
+      console.log('Switch event:', event.target.checked);
+      const response = await axiosInstance.put(`/api/transactions/${id}/`, {
+        markAsPaid: event.target.checked,
+      });
+      if (response.status !== 200) {
+        throw new Error('Network response was not ok');
+      }
+      fetchdata();
+    } catch (error) {
+      console.error(error);
+    }
   }
   
 
@@ -153,6 +172,8 @@ export default function CreditDashboard() {
               <TableCell align="right">Name</TableCell>
               <TableCell align="right">Credit</TableCell>
               <TableCell align="right">Debit</TableCell>
+              <TableCell align="right">Mode Of Payment</TableCell>
+              <TableCell align="right">Mark as Paid</TableCell>
               <TableCell align="right">Date</TableCell>
               <TableCell align="right">Time</TableCell>
             </TableRow>
@@ -171,6 +192,9 @@ export default function CreditDashboard() {
                 if (!isNaN(debitAmount)) {
                   totalDebit += debitAmount;
                 }
+                if (row.modeOfPayment === 'cheque' && !row.markAsPaid) {
+                  unpaidCheques += debitAmount;
+                }
                 return (
                   <TableRow
                     key={row.id}
@@ -182,6 +206,19 @@ export default function CreditDashboard() {
                     <TableCell align="right">{row.name}</TableCell>
                     <TableCell align="right" style={{color:"red"}}>{row.credit_amount}</TableCell>
                     <TableCell align="right" style={{color:"green"}}>{row.debit_amount}</TableCell>
+                    <TableCell align="center">{row.modeOfPayment}</TableCell>
+                    <TableCell align="center">
+                        {row.modeOfPayment === 'cheque' ? (
+                          <Switch
+                            // Assuming you have a state to track the switch value
+                            checked={row.markAsPaid}
+                            onChange={(event) => handleSwitchChange(event, row.id)}
+                            color="primary"
+                          />
+                        ) : (
+                          <Switch checked={row.markAsPaid} disabled />
+                        )}
+                    </TableCell>
                     <TableCell align="right">{row.transaction_date}</TableCell>
                     <TableCell align="right">{row.transaction_time}</TableCell>
                   </TableRow>
@@ -194,7 +231,7 @@ export default function CreditDashboard() {
         </Table>
       </TableContainer>
       <div>
-        <h6>Outstanding amount:{totalCredit-totalDebit}</h6>
+        <h6>Outstanding amount:{totalCredit-totalDebit+unpaidCheques}</h6>
       </div>
       </>
   );

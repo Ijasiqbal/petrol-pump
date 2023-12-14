@@ -8,10 +8,11 @@ import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import './Credit.css';
 import axios from 'axios';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
 import { UseReadingcontext } from '../../Readingcontext';
+import axiosInstance from '../../utils/axiosInstance';
 
 
 
@@ -27,13 +28,14 @@ const Debit = () => {
     const [showmodal,setShowmodal] = useState(false);
     const [showmodal1,setShowmodal1] = useState(false);
     const [loading,setLoading] = useState(false);
+    const [paymentMode,setPaymentMode] = useState('cash');
 
     const {api} = UseReadingcontext();
 
     async function fetchnames(){
 
       try{
-        const response = await axios.get(api+'/api/creditors/');
+        const response = await axiosInstance.get(api+'/api/creditors/');
         const debitorsdata = response.data;
         const names = debitorsdata.map((debitor) => {return debitor.name});
         setDebitors(names);
@@ -60,6 +62,8 @@ const Debit = () => {
       const requestData = {
         name: name,
         debit_amount: DebitAmount,
+        modeOfPayment: paymentMode,
+        markAsPaid: paymentMode !== 'cheque',
         transaction_date: currentDate, 
         transaction_time: currentTime,
       };
@@ -67,7 +71,7 @@ const Debit = () => {
       console.log('Data being sent:', requestData);
     
       try {
-        const response = await axios.post(
+        const response = await axiosInstance.post(
           api+'/api/transactions/',
           requestData,
           {
@@ -130,6 +134,22 @@ const Debit = () => {
                     }
                   }}
                 />
+                <FormControl sx={{ minWidth: 180 }}>
+                  <InputLabel id="ModeOfPayment">Mode Of payment</InputLabel>
+                  <Select
+                    labelId="PaymentMode"
+                    id="paymentMode"
+                    value={paymentMode}
+                    label="Filler"
+                    onChange={(e)=> {setPaymentMode(e.target.value)}}
+                  >
+                    <MenuItem value='cash'>Cash</MenuItem>
+                    <MenuItem value='card'>Card</MenuItem>
+                    <MenuItem value='cheque'>Cheque</MenuItem>
+                    <MenuItem value='paytm'>paytm</MenuItem>
+                  </Select>
+                </FormControl>
+                
 
                 <Fab color="error" className='icon' onClick={()=>{setLoading(true);validateSave()}} aria-label="add">
                   <AddIcon />

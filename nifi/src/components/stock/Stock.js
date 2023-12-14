@@ -1,6 +1,7 @@
 import { useState } from "react";
 import './Stock.css'
 import Addstock from "./Addstock";
+import { UseReadingcontext } from "../../Readingcontext";
 
 const Stock = () => {
 
@@ -8,6 +9,10 @@ const Stock = () => {
     const [tank2,settank2] = useState('');
     const [tank3,settank3] = useState('');
     const [tank4,settank4] = useState('');
+
+    const {api} = UseReadingcontext()
+
+    
 
     const [addstock,setaddstock] = useState(false)
 

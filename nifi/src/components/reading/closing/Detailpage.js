@@ -12,6 +12,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
+import axiosInstance from "../../../utils/axiosInstance";
 
 
 
@@ -97,7 +98,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         };
         console.log('Updating record with fillerid', fillerid, 'Data:', dataobject)
 
-        axios.put(api+`/api/readings/${fillerid}/`, dataobject)
+        axiosInstance.put(api+`/api/readings/${fillerid}/`, dataobject)
         .then((response) => {
             console.log('database updated',response.data);
             let refresh = !refreshPage
@@ -121,7 +122,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                 transaction_time: currentTime,
             }
             console.log('updating request for credit transaction',dataobject)
-            axios
+            axiosInstance
               .post(api+'/api/transactions/', dataobject)
               .then((response) => {
                 console.log('Database updated', response.data);
@@ -147,7 +148,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
 
     async function fetchdata(){
         try {
-            const response = await axios.get(api+`/api/readings/${fillerid}/`);
+            const response = await axiosInstance.get(api+`/api/readings/${fillerid}/`);
             const responseData = response.data;
             setopenP(responseData.openingP);
             setopenD(responseData.openingD);
@@ -159,31 +160,34 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     }
 
     function expected() {
+      let fuelSale = 0;
         if (DU === 1) {
-            return (closeP - openP) * petrol + (closeD - openD) * diesel;
+          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
         } else if (DU === 2) {
-            return (closeP - openP) * petrol + (closeD - openD) * diesel;
-        } else if (DU === 3) {
-            return (closeP - openP) * petrol + (closeD - openD) * extrapriemium;
+          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
+       } else if (DU === 3) {
+          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
         } else if (DU === 4) {
-            return (closeP - openP) * petrol + (closeD - openD) * extragreen;
+          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
         }
+        if (oil!== null) {
+          return fuelSale + parseFloat(oil);
+        }else return fuelSale;
     }
 
     function received(){
         const cashValue = parseFloat(cash) || 0; // Convert to a float or use 0 if it's not a valid number
         const cardValue = parseFloat(card) || 0;
         const paytmValue = parseFloat(paytm) || 0;
-        const oilValue = parseFloat(oil) || 0;
         let totalcredit = parseFloat(calcTotalcredit()) || 0;
     
-    return cashValue + cardValue + paytmValue + totalcredit+ oilValue ;
+    return cashValue + cardValue + paytmValue + totalcredit;
     }
 
     async function fetchnames(){
 
         try{
-          const response = await axios.get(api+'/api/creditors/');
+          const response = await axiosInstance.get(api+'/api/creditors/');
           const creditorsdata = response.data;
           const names = creditorsdata.map((creditor) => {return creditor.name});
           setCreditors(names);
@@ -225,7 +229,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                     />
                     <TextField 
                         id="outlined-basic" 
-                        label="Diesel closing" 
+                        label={DU === 1 || DU === 2 ? "Diesel closing" :DU === 3 ? "Extra Premium closing":DU === 4 ? "Extra green closing":""} 
                         variant="outlined"
                         value={closeD}
                         size="small"
@@ -234,6 +238,19 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                             if (/^\d*\.?\d*$/.test(newValue)) {
                               setcloseD(newValue);
                             }                            
+                        }}
+                    />
+                    <TextField 
+                        id="outlined-basic" 
+                        label="Oil Sales" 
+                        variant="outlined"
+                        value={oil}
+                        size="small"
+                        onChange={(e)=>{
+                            const newValue = e.target.value;
+                            if (/^\d*\.?\d*$/.test(newValue)) {
+                              setOil(newValue);
+                            }                        
                         }}
                     />
                 </div>
@@ -319,19 +336,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                             }                        
                         }}
                     />
-                    <TextField 
-                        id="outlined-basic" 
-                        label="Oil Sales" 
-                        variant="outlined"
-                        value={oil}
-                        size="small"
-                        onChange={(e)=>{
-                            const newValue = e.target.value;
-                            if (/^\d*\.?\d*$/.test(newValue)) {
-                              setOil(newValue);
-                            }                        
-                        }}
-                    />
+                    
                     <div className="calc">
                     <label className="expected">Expected:{expected()}</label>
                     <br />

@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { UseReadingcontext } from '../../Readingcontext';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
+import axiosInstance from '../../utils/axiosInstance';
 
 
 
@@ -39,7 +40,7 @@ const Create = () => {
     async function fetchnames(){
 
       try{
-        const response = await axios.get(api+'/api/employee/');
+        const response = await axiosInstance.get(api+'/api/employee/');
         const employeedata = response.data;
         const names = employeedata.map((employee) => {return employee.name});
         setemployeenames(names);
@@ -62,7 +63,7 @@ const Create = () => {
         console.log('msg sent:',newEmployee)
     
         // Make a POST request to create a new employee
-        axios
+        axiosInstance
           .post(api+'/api/employee/', newEmployee)
           .then((response) => {
             console.log('Employee created:', response.data);

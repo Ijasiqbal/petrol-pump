@@ -11,6 +11,7 @@ import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { UseReadingcontext } from '../../../Readingcontext';
+import axiosInstance from '../../../utils/axiosInstance';
 
 
 
@@ -39,7 +40,7 @@ const Creditors = () => {
     async function fetchnames(){
 
       try{
-        const response = await axios.get(api+'/api/creditors/');
+        const response = await axiosInstance.get(api+'/api/creditors/');
         const creditorsdata = response.data;
         const names = creditorsdata.map((creditor) => {return creditor.name});
         setNames(names);

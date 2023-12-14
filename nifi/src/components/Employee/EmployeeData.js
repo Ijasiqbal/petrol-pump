@@ -15,6 +15,7 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
+import axiosInstance from '../../utils/axiosInstance';
 
 // Create a functional component for displaying Employee data
 export default function EmployeeData() {
@@ -32,8 +33,8 @@ export default function EmployeeData() {
 
   // Fetch employee data
   async function fetchemployees() {
-    try {
-      const response = await axios.get(api + '/api/employee/');
+      try {
+      const response = await axiosInstance.get(api + 'api/employee/');
       const employeeData = response.data;
       setEmployees(employeeData);
     } catch (error) {
@@ -44,7 +45,7 @@ export default function EmployeeData() {
   // Handle delete employee
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${api}/api/employee/${id}`);
+      await axiosInstance.delete(`${api}/api/employee/${id}`);
       // After deletion, fetch the updated list of employees
       fetchemployees();
     } catch (error) {
@@ -54,7 +55,6 @@ export default function EmployeeData() {
 
   useEffect(() => {
     fetchemployees();
-    // ... other useEffect logic
   }, []);
 
   // Create rows from employee data
@@ -97,7 +97,6 @@ export default function EmployeeData() {
                     style={{ cursor: 'pointer' }}
                   />
                 </TableCell>
-                {/* ... other table cells as needed */}
               </TableRow>
             ))}
           </TableBody>

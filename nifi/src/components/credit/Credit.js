@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
 import { UseReadingcontext } from '../../Readingcontext';
+import axiosInstance from '../../utils/axiosInstance';
 
 
 
@@ -34,7 +35,7 @@ const Credit = () => {
     async function fetchnames(){
 
       try{
-        const response = await axios.get(api+'/api/creditors/');
+        const response = await axiosInstance.get(api+'/api/creditors/');
         const creditorsdata = response.data;
         const names = creditorsdata.map((creditor) => {return creditor.name});
         setCreditors(names);
@@ -69,14 +70,9 @@ const Credit = () => {
       console.log('Data being sent:', requestData);
     
       try {
-        const response = await axios.post(
+        const response = await axiosInstance.post(
           api+'/api/transactions/',
-          requestData,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
+          requestData
         );
     
         console.log('Data saved:', response.data);

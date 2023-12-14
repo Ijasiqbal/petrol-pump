@@ -7,6 +7,7 @@ import axios from 'axios';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
 import { UseReadingcontext } from "../../Readingcontext";
+import axiosInstance from "../../utils/axiosInstance";
 
 
 
@@ -28,7 +29,7 @@ const CreateCredit = () => {
       console.log('msg sent:',creditor)
   
       // Make a POST request to create a new creditor
-      axios
+      axiosInstance
         .post(api+'/api/creditors/', creditor)
         .then((response) => {
           console.log('creditor created:', response.data);

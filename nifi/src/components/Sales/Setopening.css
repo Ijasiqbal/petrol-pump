@@ -1,0 +1,11 @@
+.close{
+   padding-left: 92%;
+}
+.du-grp{
+    padding-top: 0;
+}
+.window{
+    position: absolute; /* or absolute, depending on your preference */
+    top: 10%;
+    left: auto;
+}

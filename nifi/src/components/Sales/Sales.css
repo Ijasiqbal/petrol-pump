@@ -1,3 +1,27 @@
+.sales{
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0px 10px 20px 10px rgba(0,0,0,0.2);
+    border-radius: 20px;
+    margin-top: 50px;
+    padding: 20px;
+    padding-bottom: 50px;
+}
+.green{
+    color: green;
+}
+.red{
+    color: red;
+}
+.black{
+    color: black;
+}
+@media (max-width:850px){
+    .sales{
+        max-width: 93vw;
+    }
+}
+
 .Du{
     display: inline-block;
     margin: 15px 15px;
@@ -5,4 +29,44 @@
 .du-grp{
     padding: 40px;
     margin-left: 15%;
+}
+.debit button{
+    display: inline-block;
+    margin: 2px;
+    margin-left: 15px;
+}
+.fuel button{
+    display: inline-block;
+    margin: 2px;
+    margin-left: 15px;
+}
+.expense{
+    padding: 20px;
+    background-color: rgb(248, 227, 223);
+    margin-bottom: 20px;
+    border-radius: 20px;
+}
+.income{
+    padding: 20px;
+    background-color: rgb(248, 227, 223);
+    border-radius: 20px;
+}
+.sales label{
+    width:125px;
+}
+.sales input{
+    padding: 5px 10px;
+}
+.shortage{
+    padding: 15px;
+}
+#savebtn{
+    background-color: rgb(220,53,69);
+    color: wheat;
+    border-radius: 10px;
+    margin-left: 15px;
+}
+#savebtn:hover{
+    color: white;
+    font-weight: 1.5em;
 }

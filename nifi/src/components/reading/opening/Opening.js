@@ -12,6 +12,7 @@ import { UseReadingcontext } from '../../../Readingcontext.js';
 import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import ReactLoading from 'react-loading';
+import axiosInstance from '../../../utils/axiosInstance.js';
 
 
 
@@ -43,7 +44,7 @@ const Opening = () => {
   const fetchPrices = async () => {
   
     try {
-      const response = await axios.get(api + '/api/prices/1/');
+      const response = await axiosInstance.get('/api/prices/1/');
       
       const priceData = response.data;
   
@@ -73,8 +74,8 @@ const Opening = () => {
     console.log('Prices being sent:', requestData);
   
     try {
-      const response = await axios.put(
-        api + '/api/prices/1/',
+      const response = await axiosInstance.put(
+        '/api/prices/1/',
         requestData,
         {
           headers: {
@@ -114,34 +115,28 @@ const resetStateAtMidnight = () => {
   const handleDUchange = (event) => {
     setDU(event.target.value);
   };
-
   const handleNossleChange = (event) => {
     setNossleValue(event.target.value);
   };
-
   const handleopeningReadingPChange = (event) => {
     const newValue = event.target.value;
     if (/^\d*\.?\d*$/.test(newValue)) {
       setopeningReadingP(newValue);
     }
   };
-
   const handleopeningReadingDChange = (event) => {
     const newValue = event.target.value;
     if (/^\d*\.?\d*$/.test(newValue)) {
       setopeningReadingD(newValue);
     }
   };
-
-
   function resetform(){
     setname('')
     setDU('')
     setNossleValue('')
     setopeningReadingP('')
     setopeningReadingD('')
-  }
-
+  };
   function whatFuel() {
     if (DU === 1 || DU === 2) {
       return 'Diesel opening';
@@ -152,12 +147,10 @@ const resetStateAtMidnight = () => {
     if (DU === 4) {
       return 'Extra Green opening';
     }
-  }
-
+  };
   async function fetchnames(){
-
     try{
-      const response = await axios.get(api+'/api/employee/');
+      const response = await axiosInstance.get(api+'/api/employee/');
       const employeedata = response.data;
       const names = employeedata.map((employee) => {return employee.name});
       setemployeenames(names);
@@ -166,7 +159,7 @@ const resetStateAtMidnight = () => {
       console.error('Error fetching employee names:', error);
     }
     
-  }
+  };
   function validateSave(){
     if (name === '' || DU === '' || nossleValue === '' || openingReadingP === '' || openingReadingD === '') {
       setLoading(false)
@@ -195,7 +188,7 @@ const resetStateAtMidnight = () => {
     console.log('Data being sent:', requestData);
   
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         api+'/api/readings/',
         requestData,
         {
@@ -233,7 +226,7 @@ const resetStateAtMidnight = () => {
             onChange={(e) => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
-              if (/^\d*\.?\d*$/.test(newValue)) {
+              if (/^\d*\.?\d{0,8}$/.test(newValue)) {
                 setpetrol(newValue);
               }
             }}
@@ -248,7 +241,7 @@ const resetStateAtMidnight = () => {
             onChange={(e) => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
-              if (/^\d*\.?\d*$/.test(newValue)) {
+              if (/^\d*\.?\d{0,8}$/.test(newValue)) {
                 setdiesel(newValue);
               }
             }}

@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/petrol-pump/static/css/main.c8d999fc.css",
-    "main.js": "/petrol-pump/static/js/main.98ea4b01.js",
+    "main.js": "/petrol-pump/static/js/main.6b47b532.js",
     "static/js/787.258a6292.chunk.js": "/petrol-pump/static/js/787.258a6292.chunk.js",
     "index.html": "/petrol-pump/index.html",
     "main.c8d999fc.css.map": "/petrol-pump/static/css/main.c8d999fc.css.map",
-    "main.98ea4b01.js.map": "/petrol-pump/static/js/main.98ea4b01.js.map",
+    "main.6b47b532.js.map": "/petrol-pump/static/js/main.6b47b532.js.map",
     "787.258a6292.chunk.js.map": "/petrol-pump/static/js/787.258a6292.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c8d999fc.css",
-    "static/js/main.98ea4b01.js"
+    "static/js/main.6b47b532.js"
   ]
 }

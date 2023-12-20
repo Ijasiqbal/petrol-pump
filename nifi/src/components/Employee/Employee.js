@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import './Employee.css'
-import Dashboard from '../reading/Dashboard';
 import Create from './Create';
 import EmployeeData from './EmployeeData';
 const Employee = () => {

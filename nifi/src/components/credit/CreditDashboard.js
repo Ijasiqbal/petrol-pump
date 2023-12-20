@@ -7,7 +7,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -15,7 +14,6 @@ import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
 import axiosInstance from '../../utils/axiosInstance';
 import Switch from '@mui/material/Switch';
-import { de } from 'date-fns/locale';
 
 export default function CreditDashboard() {
   function createData(id, name,credit_amount,debit_amount,modeOfPayment,markAsPaid,transaction_date,transaction_time) {

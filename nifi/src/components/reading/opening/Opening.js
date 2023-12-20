@@ -3,11 +3,8 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import Icon from '@mui/material/Icon';
-import { red } from '@mui/material/colors';
 import './Opening.css'
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { UseReadingcontext } from '../../../Readingcontext.js';
 import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';

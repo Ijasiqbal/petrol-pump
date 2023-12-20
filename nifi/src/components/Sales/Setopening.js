@@ -1,10 +1,8 @@
-import { useState } from "react";
 import TextField from '@mui/material/TextField';
 import './Sales.css';
 import Fab from '@mui/material/Fab';
 import CloseIcon from '@mui/icons-material/Close';
 import './Setopening.css'
-import axios from "axios";
 import { UseReadingcontext } from "../../Readingcontext";
 import axiosInstance from "../../utils/axiosInstance";
 

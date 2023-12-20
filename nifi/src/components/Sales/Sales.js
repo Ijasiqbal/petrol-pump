@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Setopening from "./Setopening";
 import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
-import axios from "axios";
 import { format, set } from "date-fns";
 import axiosInstance from "../../utils/axiosInstance";
 

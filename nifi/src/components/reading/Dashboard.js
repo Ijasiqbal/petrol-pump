@@ -7,7 +7,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -15,7 +14,6 @@ import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
 import './Dashboard.css'
 import { useNavigate } from 'react-router-dom';
-import useAxiosGet from '../../utils/useAxiosGet';
 import axiosInstance from '../../utils/axiosInstance';
 
 export default function Dashboard() {

@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import './Credit.css';
-import axios from 'axios';
 import { format } from 'date-fns';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';

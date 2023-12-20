@@ -9,11 +9,6 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete'; // Import Delete Icon
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
 import axiosInstance from '../../utils/axiosInstance';
 
@@ -25,7 +20,6 @@ export default function EmployeeData() {
   }
 
   // State variables
-  const [name, setname] = useState(null);
   const [employees, setEmployees] = useState([]);
   // ... other state variables as needed
 

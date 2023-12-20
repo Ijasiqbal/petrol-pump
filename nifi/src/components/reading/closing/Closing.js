@@ -1,7 +1,5 @@
-import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import * as React from 'react';

@@ -8,7 +8,6 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import './creditors.css'
 import TextField from '@mui/material/TextField';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { UseReadingcontext } from '../../../Readingcontext';
 import axiosInstance from '../../../utils/axiosInstance';

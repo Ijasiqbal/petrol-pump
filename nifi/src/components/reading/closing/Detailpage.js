@@ -3,8 +3,6 @@ import TextField from '@mui/material/TextField';
 import './detailpage.css'
 import Fab from '@mui/material/Fab';
 import CloseIcon from '@mui/icons-material/Close';
-import Creditors from "./Creditors";
-import axios from "axios";
 import { UseReadingcontext } from "../../../Readingcontext";
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';

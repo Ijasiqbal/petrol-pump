@@ -1,10 +1,9 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import './Navbar.css';
 import { UseReadingcontext } from '../../Readingcontext';
-import { useHistory, useLocation, useNavigate } from 'react-router-dom';
+import {  useLocation } from 'react-router-dom';
 
 function BasicExample() {
   const {api} = UseReadingcontext()

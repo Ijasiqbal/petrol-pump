@@ -13,7 +13,6 @@ const Closing = () => {
 
 const [detailpage,setdetailpage] = useState(false)
 
-const [close,setclose] = useState('');    
 
 const [data,setdata] = useState([]);
 

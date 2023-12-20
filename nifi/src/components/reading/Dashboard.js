@@ -26,9 +26,7 @@ export default function Dashboard() {
   const [month,setmonth] = useState(null)
   const [date,setdate] = useState(null);
 
-  const {api} = UseReadingcontext();
 
-  const navigate = useNavigate();
 
   let sum = 0;
 

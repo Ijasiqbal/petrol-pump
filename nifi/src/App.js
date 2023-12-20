@@ -18,9 +18,9 @@ function App() {
       <div className="App">
         <Navbar />
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/home/*" element={<Tabs />}>
             <Route index element={<Tabs />} />
-            <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="credit" element={<CreditPage />} />
             <Route path="sales" element={<Sales />} />

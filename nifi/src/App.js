@@ -14,7 +14,7 @@ import Employee from './components/Employee/Employee';
 
 function App() {
   return (
-    <Router>
+    <Router >
       <div className="App">
         <Navbar />
         <Routes>

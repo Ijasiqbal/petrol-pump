@@ -15,7 +15,7 @@ function BasicExample() {
   return (
     <Navbar expand="lg" className="bg-danger navbar-dark p-3">
       <Container>
-        <Navbar.Brand href="#home" className='fw-bold costom'>Nifi Fuels</Navbar.Brand>
+        <Navbar.Brand href="home" className='fw-bold costom'>Nifi Fuels</Navbar.Brand>
         <Navbar.Toggle  aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto" id='navcomponent'>

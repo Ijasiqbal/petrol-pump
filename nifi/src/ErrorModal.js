@@ -9,7 +9,6 @@ function ErrorModal({message,onClose }) {
     setShow(false)
     onClose();
   };
-  const handleShow = () => setShow(true);
 
   return (
     <>

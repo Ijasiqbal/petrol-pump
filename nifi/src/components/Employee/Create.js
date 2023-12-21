@@ -83,7 +83,7 @@ const Create = () => {
 
       useEffect(() => {
         fetchnames();
-      }, [fetchnames]);
+      }, []);
 
     return ( 
         <div>

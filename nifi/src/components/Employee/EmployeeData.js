@@ -28,7 +28,7 @@ export default function EmployeeData() {
   // Fetch employee data
   async function fetchemployees() {
       try {
-      const response = await axiosInstance.get(api + 'api/employee/');
+      const response = await axiosInstance.get(api + '/api/employee/');
       const employeeData = response.data;
       setEmployees(employeeData);
     } catch (error) {

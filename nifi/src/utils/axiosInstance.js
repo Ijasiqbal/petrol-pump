@@ -27,7 +27,7 @@ axiosInstance.interceptors.response.use(
     // Try to refresh the token
     try {
         authToken = JSON.parse(localStorage.getItem('auth_token'));
-      const response = await axios.post(`${baseURL}api-auth/login/refresh/`, {
+      const response = await axios.post(`${baseURL}/api-auth/login/refresh/`, {
         refresh: authToken.refresh,
       });
 

@@ -1,5 +1,6 @@
 import axios from 'axios';
-const baseURL = 'http://127.0.0.1:8000';
+//const baseURL = 'http://127.0.0.1:8000';
+const baseURL = 'https://fuel-station-backend-production.up.railway.app/';
 
 
 let authToken = JSON.parse(localStorage.getItem('auth_token'));
@@ -26,7 +27,7 @@ axiosInstance.interceptors.response.use(
     // Try to refresh the token
     try {
         authToken = JSON.parse(localStorage.getItem('auth_token'));
-      const response = await axios.post(`${baseURL}/api-auth/login/refresh/`, {
+      const response = await axios.post(`${baseURL}api-auth/login/refresh/`, {
         refresh: authToken.refresh,
       });
 

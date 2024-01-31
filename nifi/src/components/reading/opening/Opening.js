@@ -10,18 +10,19 @@ import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import ReactLoading from 'react-loading';
 import axiosInstance from '../../../utils/axiosInstance.js';
-
+import { setPetrol,setDiesel,setExtragreen,setExtrapriemium } from '../../../Redux/PriceSlice.js';
+import { useSelector, useDispatch } from 'react-redux'
 
 
 const Opening = () => {
-  const {petrol,
-    setpetrol,
-    diesel,
-    setdiesel,
-    extragreen,
-    setextragreen,
-    extrapriemium,
-    setextrapriemium,
+
+  const dispatch = useDispatch();
+  const petrol = useSelector((state) => state.price.petrol);
+  const diesel = useSelector((state) => state.price.diesel);
+  const extragreen = useSelector((state) => state.price.extragreen);
+  const extrapriemium = useSelector((state) => state.price.extrapriemium);
+
+  const {
     api
   } = UseReadingcontext();
 
@@ -48,10 +49,10 @@ const Opening = () => {
       const { petrol, diesel, extragreen, extrapremium } = priceData;
   
       // Update state variables with the fetched prices
-      setpetrol(petrol);
-      setdiesel(diesel);
-      setextragreen(extragreen);
-      setextrapriemium(extrapremium);
+      dispatch(setPetrol(petrol));
+      dispatch(setDiesel(diesel));
+      dispatch(setExtragreen(extragreen));
+      dispatch(setExtrapriemium(extrapremium));
   
     } catch (error) {
       console.error('Error fetching prices:', error);
@@ -90,20 +91,6 @@ const Opening = () => {
     }
   };
   
-const resetStateAtMidnight = () => {
-  const now = new Date();
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0); // Set to midnight
-
-  const timeUntilMidnight = midnight - now;
-
-  setTimeout(() => {
-    setpetrol(null);
-    setdiesel(null);
-    setextragreen(null);
-    setextrapriemium(null);
-  }, timeUntilMidnight);
-};
 
   const handleNameChange = (event) => {
     setname(event.target.value);
@@ -207,7 +194,6 @@ const resetStateAtMidnight = () => {
 
   useEffect(() => {
     fetchnames();
-    resetStateAtMidnight();
   },[componentKey])
   
 
@@ -224,7 +210,7 @@ const resetStateAtMidnight = () => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
               if (/^\d*\.?\d{0,8}$/.test(newValue)) {
-                setpetrol(newValue);
+                dispatch(setPetrol(newValue));
               }
             }}
           />
@@ -239,7 +225,7 @@ const resetStateAtMidnight = () => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
               if (/^\d*\.?\d{0,8}$/.test(newValue)) {
-                setdiesel(newValue);
+                dispatch(setDiesel(newValue));
               }
             }}
           />
@@ -255,7 +241,7 @@ const resetStateAtMidnight = () => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
               if (/^\d*\.?\d*$/.test(newValue)) {
-                setextrapriemium(newValue);
+                dispatch(setExtrapriemium(newValue));
               }
             }}
           />
@@ -270,7 +256,7 @@ const resetStateAtMidnight = () => {
               const newValue = e.target.value;
               // Use a regular expression to allow only integer numbers
               if (/^\d*\.?\d*$/.test(newValue)) {
-                setextragreen(newValue);
+                dispatch(setExtragreen(newValue));
               }
             }}
           />

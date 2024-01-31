@@ -8,6 +8,8 @@ import Employee from '../Employee/Employee';
 import CreditPage from '../credit/CreditPage';
 import Sales from '../Sales/Sales';
 import { useNavigate } from 'react-router-dom';
+import SalesTabs from '../Sales/SalesTabs';
+import Price from '../Price/Price';
 
 function ControlledTabsExample() {
   const [key, setKey] = useState('reading');
@@ -35,10 +37,13 @@ function ControlledTabsExample() {
             <Employee />
           </Tab>
           <Tab eventKey="sales" title="Sales">
-            <Sales />
+            <SalesTabs />
           </Tab>
           <Tab eventKey="reading" title="Reading">
             <Reading />        
+          </Tab>
+          <Tab eventKey="price" title="Price">
+            <Price />        
           </Tab>
         </Tabs>
     </div>

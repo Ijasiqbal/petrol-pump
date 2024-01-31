@@ -33,7 +33,7 @@ const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles}) => {
 
 
     async function handlePrev(){
-        axiosInstance.get(api+'api/closingSales/')
+        axiosInstance.get(api+'/api/closingSales/')
         .then((response) => {
           const fetchedData = response.data;
           console.log('Fetched data:', fetchedData);

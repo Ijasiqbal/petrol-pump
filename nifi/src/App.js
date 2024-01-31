@@ -11,6 +11,7 @@ import Sales from './components/Sales/Sales';
 import Reading from './components/reading/Reading';
 import CreditPage from './components/credit/CreditPage';
 import Employee from './components/Employee/Employee';
+import SalesTabs from './components/Sales/SalesTabs';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
             <Route index element={<Tabs />} />
             <Route path="register" element={<Register />} />
             <Route path="credit" element={<CreditPage />} />
-            <Route path="sales" element={<Sales />} />
+            <Route path="sales" element={<SalesTabs />} />
             <Route path="stock" element={<Stock />} />
             <Route path="reading" element={<Reading />} />
             <Route path="employee" element={<Employee />} />

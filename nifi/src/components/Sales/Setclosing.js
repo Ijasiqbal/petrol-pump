@@ -22,6 +22,11 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
         }
     };
 
+    const handleClear = () => {
+        const clearedValues = CloseDuNozzles.map(du => du.map(() => ''));
+        setCloseDuNozzles(clearedValues);
+    };
+
 
     const handleSave = () => {
         const postData = {
@@ -44,7 +49,7 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
         };
         console.log('postData:', postData);
 
-        axiosInstance.post(api+'api/closingSales/', postData)
+        axiosInstance.post(api+'/api/closingSales/', postData)
             .then((response) => {
                 console.log('Data saved:', response.data);
                 // Handle success, e.g., show a success message
@@ -90,6 +95,7 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
                     </div>
                 ))}
                 <button className="btn2" onClick={handleSave}>save</button>
+                <button className='btn2' onClick={handleClear}>Clear</button>
             </div>
         </div>
     );

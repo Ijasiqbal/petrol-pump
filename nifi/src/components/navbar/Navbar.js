@@ -10,7 +10,7 @@ function BasicExample() {
 
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/';
+  const isHomePage = location.pathname.startsWith('/home');
   return (
     <Navbar expand="lg" className="bg-danger navbar-dark p-3">
       <Container>

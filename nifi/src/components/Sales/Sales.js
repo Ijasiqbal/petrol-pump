@@ -4,6 +4,7 @@ import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
 import { format, set } from "date-fns";
 import axiosInstance from "../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 const Sales = () => {
   const [openingpage, setopeningpage] = useState(false);
@@ -23,11 +24,13 @@ const Sales = () => {
   const [openingBalance, setOpeningBalance] = useState(0);
   const [readings, setreadings] = useState([]);
   const [credits, setCredits] = useState([]);
-  const {petrol,
-    diesel,
-    extragreen,
-    extrapriemium,
-    api,
+  
+  const petrol = useSelector((state) => state.price.petrol);
+  const diesel = useSelector((state) => state.price.diesel);
+  const extrapriemium = useSelector((state) => state.price.extrapriemium);
+  const extragreen = useSelector((state) => state.price.extragreen);
+
+  const {api
 } = UseReadingcontext();
 
 
@@ -103,6 +106,17 @@ const Sales = () => {
     axiosInstance.post(api+`/api/sales/`, dataobject)
     .then((response) => {
         console.log('database updated',response.data);
+        setfuel(0);
+        setoil(0);
+        setitem(0);
+        setdebit(0);
+        setcash(0);
+        setTotalCards(0);
+        setTotalPaytm(0);
+        setCredit(0);
+        setClosingBalance(0);
+        setOpeningBalance(0);
+        
   })
     .catch((error) => {
         console.error('Error updating database:', error);
@@ -158,7 +172,7 @@ const Sales = () => {
   }, []);
 
   return (
-    <div className="sales">
+    <div >
       <h1>Sales</h1>
       <div>{openingpage && <Setopening setopeningpage={setopeningpage} OpenDuNozzles={OpenDuNozzles} setOpenDuNozzles={setOpenDuNozzles} />}</div>
       <div>{closingpage && <Setclosing setclosingpage={setclosingpage} CloseDuNozzles={CloseDuNozzles} setCloseDuNozzles={setCloseDuNozzles}/>}</div>

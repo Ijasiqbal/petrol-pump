@@ -11,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import axiosInstance from "../../../utils/axiosInstance";
+import { useSelector } from "react-redux";
 
 
 
@@ -68,12 +69,13 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         return sum;
     }  
 
-    const {petrol,
-           diesel,
-           extragreen,
-           extrapriemium,
-           api,
+    const {api
     } = UseReadingcontext();
+
+    const petrol = useSelector((state) => state.price.petrol);
+    const diesel = useSelector((state) => state.price.diesel);
+    const extragreen = useSelector((state) => state.price.extragreen);
+    const extrapriemium = useSelector((state) => state.price.extrapriemium);
 
     function putdata(){
 

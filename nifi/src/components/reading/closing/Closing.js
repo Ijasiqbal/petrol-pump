@@ -55,7 +55,7 @@ useEffect(() => {
                                 <h4 className='nametag'>
                                     {item.name}    
                                 </h4>
-                                <h6>nozzle:{item.nossle}</h6>                  
+                                <h6>nozzle:{(item.nossle===1 ? '1 & 2' : '2 & 3' )}</h6>                  
                                 <button className='btn2'onClick={()=> {
                                     setdetailpage(true);
                                     setfillername(item.name)

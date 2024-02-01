@@ -27,7 +27,7 @@ const resetLocalStorage = () => {
     localStorage.setItem("extragreen", '');
     localStorage.setItem("extrapriemium", '');
 
-  }, 60000 );
+  }, timeUntilMidnight );
 };
 
 export const priceSlice = createSlice({

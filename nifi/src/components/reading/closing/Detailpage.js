@@ -8,10 +8,11 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import { useSelector } from "react-redux";
 import useAxios from "../../../utils/useAxios";
+import { Checkbox } from "@mui/material";
 
 
 
@@ -29,6 +30,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [card,setcard] = useState(null); 
     const [paytm,setpaytm] = useState(null);
     const [oil,setOil] = useState(null)
+    const [testP,setTestP] = useState(null);
+    const [testD,setTestD] = useState(null);
 
 
     const [openP,setopenP] = useState(null);
@@ -39,6 +42,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [state, setstate] = useState([]); // Object to store name: amount pairs
     const [count,setcount] = useState(0);
 
+    const [checkTest,setcheckTest] = useState(false);
     const [showmodal,setshowmodal] = useState(false);
     const [showmodal1,setshowmodal1] = useState(false);
 
@@ -164,7 +168,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     function expected() {
       let fuelSale = 0;
         if (DU === 1) {
-          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
+          fuelSale=(closeP - openP -(checkTest ? testP:0)) * petrol + (closeD - openD  -(checkTest ? testD:0)) * diesel 
         } else if (DU === 2) {
           fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
        } else if (DU === 3) {
@@ -249,12 +253,39 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                         value={oil}
                         size="small"
                         onChange={(e)=>{
-                            const newValue = e.target.value;
-                            if (/^\d*\.?\d*$/.test(newValue)) {
-                              setOil(newValue);
-                            }                        
+                            setOil(e.target.value);                        
                         }}
+                        type="number"
                     />
+                    <div>
+                      <Checkbox 
+                      value={checkTest}
+                      onChange={(e)=>{
+                        setcheckTest(e.target.checked);
+                      }}
+                      />
+                      <TextField 
+                      {...(!checkTest ? {disabled: true} : {}) }
+                      label="Petrol Test"
+                      size="small"
+                      type="number"
+                      sx={{ maxWidth: 180 }}
+                      value={testP}
+                      onChange={(e)=>{
+                        setTestP(e.target.value);
+                      }}
+                      />
+                      <TextField
+                      {...(!checkTest ? {disabled: true} : {}) }
+                      label={DU === 1 || DU === 2 ? "Diesel test" :DU === 3 ? "Extra Premium test":DU === 4 ? "Extra green test":""}
+                      size="small"
+                      type="number"
+                      value={testD}
+                      onChange={(e)=>{
+                        setTestD(e.target.value);
+                      }}
+                      />
+                    </div>
                 </div>
                 
                 <div className="credit-form">

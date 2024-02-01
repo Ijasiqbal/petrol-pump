@@ -47,36 +47,43 @@ const Sales = () => {
           Array.from({ length: 4 }, () => '')
       )
   );
+
   // Create state for 4 DU 4 nozzle
   const [CloseDuNozzles, setCloseDuNozzles] = useState(
       Array.from({ length: 4 }, () =>
           Array.from({ length: 4 }, () => '')
       )
   );
+  const [test,setTest] = useState([
+    [5,5,5,5],
+    [5,5,5,5],
+    [5,5,5,5],
+    [5,5,5,5]
+  ])
 
   function CalcFuelSales() {
     
     let collection = [];
   
-    collection.push(parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1]) * diesel);
-    collection.push(parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3]) * diesel);
+    collection.push(parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0] - test[0][0]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1] - test[0][1]) * diesel);
+    collection.push(parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]) * diesel);
   
-    collection.push(parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1]) * diesel);
-    collection.push(parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3]) * diesel);
+    collection.push(parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]) * diesel);
+    collection.push(parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]) * diesel);
   
-    collection.push(parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1]) * extrapriemium);
-    collection.push(parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3]) * extrapriemium);
+    collection.push(parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * extrapriemium);
+    collection.push(parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * extrapriemium);
   
-    collection.push(parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1]) * extragreen);
-    collection.push(parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3]) * extragreen);
+    collection.push(parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]) * extragreen);
+    collection.push(parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2] - test[3][2]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3] - test[3][3]) * extragreen);
   
     let sum = 0;
     for (let i = 0; i < collection.length; i++) {
@@ -186,7 +193,7 @@ const Sales = () => {
       {showmodal && (<ErrorModal message={"Please set prices first"} onClose={()=>{setShowmodal(false)}} />)}
 
       <h1>Sales</h1>
-      <div>{openingpage && <Setopening setopeningpage={setopeningpage} OpenDuNozzles={OpenDuNozzles} setOpenDuNozzles={setOpenDuNozzles} />}</div>
+      <div>{openingpage && <Setopening setopeningpage={setopeningpage} OpenDuNozzles={OpenDuNozzles} setOpenDuNozzles={setOpenDuNozzles} test={test} setTest= {setTest} />}</div>
       <div>{closingpage && <Setclosing setclosingpage={setclosingpage} CloseDuNozzles={CloseDuNozzles} setCloseDuNozzles={setCloseDuNozzles}/>}</div>
       <div className="expense">
         <h3>Expense</h3>

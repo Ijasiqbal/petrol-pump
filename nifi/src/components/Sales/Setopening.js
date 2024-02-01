@@ -8,11 +8,13 @@ import useAxios from '../../utils/useAxios';
 
 
 
-const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles}) => {
+const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles,test,setTest}) => {
 
     let apiCall = useAxios();
 
     const {api} = UseReadingcontext()
+
+    
 
     const handleNozzleChange = (duIndex, nozzleIndex, newValue) => {
         // Use a regular expression to allow only integer numbers
@@ -79,6 +81,22 @@ const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles}) => {
                                 value={nozzle}
                                 onChange={(e) => handleNozzleChange(duIndex, nozzleIndex, e.target.value)}
                             />
+                                <TextField 
+                                id= {`test${nozzleIndex}`}
+                                label="Test"
+                                size="small"
+                                sx={{ maxWidth: 60 }}
+                                value={test[duIndex][nozzleIndex]}
+                                type='number'
+                                onChange={(e) => {
+                                    setTest(prevTest => {
+                                        const newTest = [...prevTest];
+                                        newTest[duIndex][nozzleIndex] = e.target.value;
+                                        return newTest;
+                                    });
+                                
+                                }}
+                                />
                              {(nozzleIndex + 1) % 2 === 0 && nozzleIndex !== du.length - 1 && <br />} {/*add br tag*/}
                             </div>
                         ))}

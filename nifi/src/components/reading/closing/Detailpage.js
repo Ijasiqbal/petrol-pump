@@ -10,8 +10,8 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
-import axiosInstance from "../../../utils/axiosInstance";
 import { useSelector } from "react-redux";
+import useAxios from "../../../utils/useAxios";
 
 
 
@@ -20,6 +20,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     let receivedValue = 0;
     let shortage = 0;
     let totalcredit = 0;
+
+    let apiCall = useAxios();
 
     const [closeP,setcloseP] = useState(null); 
     const [closeD,setcloseD] = useState(null);
@@ -98,7 +100,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         };
         console.log('Updating record with fillerid', fillerid, 'Data:', dataobject)
 
-        axiosInstance.put(api+`/api/readings/${fillerid}/`, dataobject)
+        apiCall.put(api+`/api/readings/${fillerid}/`, dataobject)
         .then((response) => {
             console.log('database updated',response.data);
             let refresh = !refreshPage
@@ -122,7 +124,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                 transaction_time: currentTime,
             }
             console.log('updating request for credit transaction',dataobject)
-            axiosInstance
+            apiCall
               .post(api+'/api/transactions/', dataobject)
               .then((response) => {
                 console.log('Database updated', response.data);
@@ -148,7 +150,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
 
     async function fetchdata(){
         try {
-            const response = await axiosInstance.get(api+`/api/readings/${fillerid}/`);
+            const response = await apiCall.get(api+`/api/readings/${fillerid}/`);
             const responseData = response.data;
             setopenP(responseData.openingP);
             setopenD(responseData.openingD);
@@ -187,7 +189,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     async function fetchnames(){
 
         try{
-          const response = await axiosInstance.get(api+'/api/creditors/');
+          const response = await apiCall.get(api+'/api/creditors/');
           const creditorsdata = response.data;
           const names = creditorsdata.map((creditor) => {return creditor.name});
           setCreditors(names);

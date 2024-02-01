@@ -10,7 +10,7 @@ import './creditors.css'
 import TextField from '@mui/material/TextField';
 import { useEffect, useState } from 'react';
 import { UseReadingcontext } from '../../../Readingcontext';
-import axiosInstance from '../../../utils/axiosInstance';
+import useAxios from '../../../utils/useAxios';
 
 
 
@@ -31,6 +31,8 @@ const MenuProps = {
 
 const Creditors = () => {
 
+  let apiCall = useAxios();
+
     const [personName, setPersonName] = useState([]);
     const [Names,setNames] = useState([]);
 
@@ -39,7 +41,7 @@ const Creditors = () => {
     async function fetchnames(){
 
       try{
-        const response = await axiosInstance.get(api+'/api/creditors/');
+        const response = await apiCall.get(api+'/api/creditors/');
         const creditorsdata = response.data;
         const names = creditorsdata.map((creditor) => {return creditor.name});
         setNames(names);

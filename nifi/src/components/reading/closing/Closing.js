@@ -6,10 +6,12 @@ import * as React from 'react';
 import './closing.css'
 import Detailpage from './Detailpage.js';
 import { UseReadingcontext } from '../../../Readingcontext';
-import axiosInstance from '../../../utils/axiosInstance.js';
+import useAxios from '../../../utils/useAxios.js';
 
 
 const Closing = () => {
+
+let apiCall = useAxios();
 
 const [detailpage,setdetailpage] = useState(false)
 
@@ -17,14 +19,14 @@ const [detailpage,setdetailpage] = useState(false)
 const [data,setdata] = useState([]);
 
 const {api} = UseReadingcontext()
-const [refreshPage,setrefreshPage] = useState('');
+const [refreshPage,setrefreshPage] = useState(false);
 
 const[fillername,setfillername] = useState('')
 const[fillerid,setfillerid] = useState(null)
 
 const fetchdata = async() => {
     try{
-        const response = await axiosInstance.get(api+'/api/readings/');
+        const response = await apiCall.get(api+'/api/readings/');
         console.log('Response data:', response.data);
         setdata(response.data);
     }
@@ -35,7 +37,9 @@ const fetchdata = async() => {
 }
 
 useEffect(() => {
-    fetchdata();
+    setTimeout(() => {
+        fetchdata();
+    }, 1000);
 },[refreshPage]);
 
     return ( 

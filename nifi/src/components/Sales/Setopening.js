@@ -4,11 +4,13 @@ import Fab from '@mui/material/Fab';
 import CloseIcon from '@mui/icons-material/Close';
 import './Setopening.css'
 import { UseReadingcontext } from "../../Readingcontext";
-import axiosInstance from "../../utils/axiosInstance";
+import useAxios from '../../utils/useAxios';
 
 
 
 const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles}) => {
+
+    let apiCall = useAxios();
 
     const {api} = UseReadingcontext()
 
@@ -33,7 +35,7 @@ const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles}) => {
 
 
     async function handlePrev(){
-        axiosInstance.get(api+'/api/closingSales/')
+        apiCall.get(api+'/api/closingSales/')
         .then((response) => {
           const fetchedData = response.data;
           console.log('Fetched data:', fetchedData);

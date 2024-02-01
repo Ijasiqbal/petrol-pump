@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '../../utils/axiosInstance';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -8,13 +7,17 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import './SalesTable.css';
+import useAxios from '../../utils/useAxios';
 
 const SalesTable = () => {
+
+    let apiCall = useAxios();
+
   const [sales, setSales] = useState([]);
 
   async function getSales() {
     try {
-      const response = await axiosInstance.get('/api/sales/');
+      const response = await apiCall.get('/api/sales/');
       const salesData = response.data;
       salesData.reverse();
       setSales(salesData);

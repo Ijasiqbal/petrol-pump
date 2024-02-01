@@ -6,11 +6,13 @@ import './CreateCredit.css';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
 import { UseReadingcontext } from "../../Readingcontext";
-import axiosInstance from "../../utils/axiosInstance";
+import useAxios from "../../utils/useAxios";
 
 
 
 const CreateCredit = () => {
+
+    let apiCall = useAxios();
     
     const [name,setname] = useState('')
 
@@ -28,7 +30,7 @@ const CreateCredit = () => {
       console.log('msg sent:',creditor)
   
       // Make a POST request to create a new creditor
-      axiosInstance
+      apiCall
         .post(api+'/api/creditors/', creditor)
         .then((response) => {
           console.log('creditor created:', response.data);

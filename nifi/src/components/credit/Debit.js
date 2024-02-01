@@ -11,13 +11,15 @@ import { format } from 'date-fns';
 import ErrorModal from '../../ErrorModal';
 import ReactLoading from 'react-loading';
 import { UseReadingcontext } from '../../Readingcontext';
-import axiosInstance from '../../utils/axiosInstance';
+import useAxios from '../../utils/useAxios';
 
 
 
 
 
 const Debit = () => {
+
+  let apiCall = useAxios();
 
     const [name, setname] = useState('');
     const [DebitAmount,setDebitAmount] = useState('');
@@ -34,7 +36,7 @@ const Debit = () => {
     async function fetchnames(){
 
       try{
-        const response = await axiosInstance.get(api+'/api/creditors/');
+        const response = await apiCall.get(api+'/api/creditors/');
         const debitorsdata = response.data;
         const names = debitorsdata.map((debitor) => {return debitor.name});
         setDebitors(names);
@@ -70,7 +72,7 @@ const Debit = () => {
       console.log('Data being sent:', requestData);
     
       try {
-        const response = await axiosInstance.post(
+        const response = await apiCall.post(
           api+'/api/transactions/',
           requestData,
           {

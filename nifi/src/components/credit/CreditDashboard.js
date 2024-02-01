@@ -12,14 +12,16 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
-import axiosInstance from '../../utils/axiosInstance';
 import Checkbox from '@mui/material/Checkbox'; // Import Checkbox component
 import Switch from '@mui/material/Switch';
+import useAxios from '../../utils/useAxios';
 
 export default function CreditDashboard() {
   function createData(id, name, credit_amount, debit_amount, modeOfPayment, markAsPaid, transaction_date, transaction_time) {
     return { id, name, credit_amount, debit_amount, modeOfPayment, markAsPaid, transaction_date, transaction_time };
   }
+
+  let apiCall = useAxios();
 
   const [name, setname] = useState(null);
   const [Creditors, setCreditors] = useState([]);
@@ -39,7 +41,7 @@ export default function CreditDashboard() {
 
   async function fetchdata() {
     try {
-      const response = await axiosInstance.get('/api/transactions/');
+      const response = await apiCall.get('/api/transactions/');
 
       if (response.status !== 200) {
         throw new Error('Network response was not ok');
@@ -56,7 +58,7 @@ export default function CreditDashboard() {
 
   async function fetchnames() {
     try {
-      const response = await axiosInstance.get(api + '/api/creditors/');
+      const response = await apiCall.get(api + '/api/creditors/');
       const creditorsdata = response.data;
       const names = creditorsdata.map((creditor) => { return creditor.name });
       setCreditors(names);
@@ -69,7 +71,7 @@ export default function CreditDashboard() {
   async function handleSwitchChange(event, id) {
     try {
       console.log('Switch event:', event.target.checked);
-      const response = await axiosInstance.put(`/api/transactions/${id}/`, {
+      const response = await apiCall.put(`/api/transactions/${id}/`, {
         markAsPaid: event.target.checked,
       });
       if (response.status !== 200) {

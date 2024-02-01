@@ -4,9 +4,11 @@ import Fab from '@mui/material/Fab';
 import CloseIcon from '@mui/icons-material/Close';
 import './Setopening.css';
 import { UseReadingcontext } from "../../Readingcontext";
-import axiosInstance from "../../utils/axiosInstance";
+import useAxios from '../../utils/useAxios';
 
 const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
+
+    let apiCall = useAxios();
 
     const {api} = UseReadingcontext()
     
@@ -49,7 +51,7 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
         };
         console.log('postData:', postData);
 
-        axiosInstance.post(api+'/api/closingSales/', postData)
+        apiCall.post(api+'/api/closingSales/', postData)
             .then((response) => {
                 console.log('Data saved:', response.data);
                 // Handle success, e.g., show a success message

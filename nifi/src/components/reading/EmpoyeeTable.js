@@ -13,12 +13,14 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { UseReadingcontext } from '../../Readingcontext';
-import axiosInstance from '../../utils/axiosInstance';
+import useAxios from '../../utils/useAxios';
 
 export default function EmployeeTable() {
   function createData(id, name, dispensingUnit,nossle,cash,card,paytm,oil,credit,expected, received,shortage,date,time) {
     return { id, name, dispensingUnit,nossle,cash,card,paytm,oil,credit,expected, received,shortage,date,time};
   }
+
+  let apiCall = useAxios();
 
   const [name, setname] = useState(null);
   const [employeenames,setemployeenames] = useState([]);
@@ -36,7 +38,7 @@ export default function EmployeeTable() {
 
   async function fetchdata() {
     try {
-      const response = await axiosInstance.get(api + '/api/readings/');
+      const response = await apiCall.get(api + '/api/readings/');
   
       if (response.status !== 200) {
         throw new Error('Network response was not ok');
@@ -56,7 +58,7 @@ export default function EmployeeTable() {
   async function fetchnames(){
 
     try{
-      const response = await axiosInstance.get(api+'/api/employee/');
+      const response = await apiCall.get(api+'/api/employee/');
       const employeedata = response.data;
       const names = employeedata.map((employee) => {return employee.name});
       setemployeenames(names);

@@ -3,10 +3,14 @@ import Setopening from "./Setopening";
 import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
 import { format, set } from "date-fns";
-import axiosInstance from "../../utils/axiosInstance";
 import { useSelector } from "react-redux";
+import ErrorModal from "../../ErrorModal";
+import useAxios from "../../utils/useAxios";
 
 const Sales = () => {
+
+  let apiCall = useAxios();
+
   const [openingpage, setopeningpage] = useState(false);
   const [closingpage, setclosingpage] = useState(false);
 
@@ -15,6 +19,7 @@ const Sales = () => {
   const [item, setitem] = useState(0);
   const [fuel, setfuel] = useState(0);
   const [cash, setcash] = useState(0);
+  const [showmodal, setShowmodal] = useState(false);
 
   // Additional state for new fields
   const [totalCards, setTotalCards] = useState(0);
@@ -103,7 +108,7 @@ const Sales = () => {
     };
     console.log('Updating record with Data:', dataobject)
 
-    axiosInstance.post(api+`/api/sales/`, dataobject)
+    apiCall.post(api+`/api/sales/`, dataobject)
     .then((response) => {
         console.log('database updated',response.data);
         setfuel(0);
@@ -127,7 +132,7 @@ const Sales = () => {
   
   const fetchreadings = async () => {
     try {
-      const response = await axiosInstance.get(api + "/api/readings/");
+      const response = await apiCall.get(api + "/api/readings/");
       console.log("Response data:", response.data);
       setreadings(response.data);
     } catch (error) {
@@ -137,7 +142,7 @@ const Sales = () => {
 
   async function fetchcredits() {
     try {
-      const response = await axiosInstance.get('/api/transactions/');
+      const response = await apiCall.get('/api/transactions/');
   
       if (response.status !== 200) {
         throw new Error('Network response was not ok');
@@ -155,13 +160,18 @@ const Sales = () => {
   }
   async function CalcOpeningBalance(){
     try{
-      const response = await axiosInstance.get(api+'/api/sales/');
+      const response = await apiCall.get(api+'/api/sales/');
       const salesdata = response.data;
       console.log('salesdata',salesdata)
       const closingBalance = salesdata.map((sale) => {return sale.closingBalance});
       setOpeningBalance(closingBalance[salesdata.length-1]);
     }catch(error){
       console.error('Error fetching sales:', error);
+    }
+  }
+  function validatePrice(){
+    if (petrol === '' || diesel === '' || extrapriemium === '' || extragreen === '') {
+      setShowmodal(true)
     }
   }
   
@@ -173,6 +183,8 @@ const Sales = () => {
 
   return (
     <div >
+      {showmodal && (<ErrorModal message={"Please set prices first"} onClose={()=>{setShowmodal(false)}} />)}
+
       <h1>Sales</h1>
       <div>{openingpage && <Setopening setopeningpage={setopeningpage} OpenDuNozzles={OpenDuNozzles} setOpenDuNozzles={setOpenDuNozzles} />}</div>
       <div>{closingpage && <Setclosing setclosingpage={setclosingpage} CloseDuNozzles={CloseDuNozzles} setCloseDuNozzles={setCloseDuNozzles}/>}</div>
@@ -192,7 +204,10 @@ const Sales = () => {
           <button className="btn1" onClick={() => setclosingpage(true)}>
             Set closing
           </button>
-          <button className="btn1" on onClick={()=>{setfuel(CalcFuelSales())}}>Calculate</button>
+          <button className="btn1" on onClick={()=>{
+            validatePrice()
+            setfuel(CalcFuelSales())
+          }}>Calculate</button>
         </div>
         {/* Debit */}
         <div className="debit">

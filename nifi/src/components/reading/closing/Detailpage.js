@@ -292,7 +292,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                     {Array.from({length:count}).map((_,index)=>(
                         <div>
                             <FormControl sx={{ minWidth: 150 }} size='small'>
-                              <InputLabel id="demo-simple-select-label">Name</InputLabel>
+                              <InputLabel id="demo-simple-select-lab">Name</InputLabel>
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"

@@ -80,7 +80,7 @@ export default function EmployeeTable() {
   return (
     <>
     <FormControl sx={{ minWidth: 150 }} size='small'>
-      <InputLabel id="demo-simple-select-label">Filter by Name</InputLabel>
+      <InputLabel id="demo-simple-select-label">Filter by Name  </InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"

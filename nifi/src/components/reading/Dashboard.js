@@ -74,7 +74,6 @@ export default function Dashboard() {
 
   return (
     <>
-    <div className='table'>
         <h2>Dashboard</h2>
     <FormControl sx={{ minWidth: 150 }} size='small'>
       <InputLabel id="demo-simple-select-label">Filter by Name</InputLabel>
@@ -205,7 +204,6 @@ export default function Dashboard() {
       </TableContainer>
       <div>
         <h6>Total Shortage:{sum}</h6>
-      </div>
       </div>
       </>
   );

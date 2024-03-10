@@ -72,8 +72,8 @@ const Opening = () => {
     console.log('Prices being sent:', requestData);
   
     try {
-      const response = await axiosInstance.put(
-        '/api/prices/1/',
+      const response = await axiosInstance.post(
+        '/api/prices/',
         requestData,
         {
           headers: {

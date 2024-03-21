@@ -11,6 +11,13 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
     let apiCall = useAxios();
 
     const {api} = UseReadingcontext()
+
+    const placeholder = [
+        ['P2','D3','P1','P2'],
+        ['P4','D6','P3','D5'],
+        ['XP2','P6','XP1','P5'],
+        ['P8','XD2','P7','XD1'],
+    ];
     
 
     const handleNozzleChange = (duIndex, nozzleIndex, newValue) => {
@@ -86,7 +93,7 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
                                 key={nozzleIndex}
                                 sx={{ maxWidth: 200 }}
                                 id={`Nozzle ${nozzleIndex + 1}`}
-                                label={`Nozzle ${nozzleIndex + 1}`}
+                                label={`Nozzle ${nozzleIndex + 1} (${placeholder[duIndex][nozzleIndex]})`}
                                 size="small"
                                 value={nozzle}
                                 onChange={(e) => handleNozzleChange(duIndex, nozzleIndex, e.target.value)}

@@ -13,7 +13,7 @@ const Setclosing = ({setclosingpage,CloseDuNozzles,setCloseDuNozzles}) => {
     const {api} = UseReadingcontext()
 
     const placeholder = [
-        ['P2','D3','P1','P2'],
+        ['P2','D3','P1','D4'],
         ['P4','D6','P3','D5'],
         ['XP2','P6','XP1','P5'],
         ['P8','XD2','P7','XD1'],

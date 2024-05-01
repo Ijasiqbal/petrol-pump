@@ -75,10 +75,10 @@ const Sales = () => {
     collection.push(parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]) * petrol);
     collection.push(parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]) * diesel);
   
-    collection.push(parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * extrapriemium);
-    collection.push(parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * extrapriemium);
+    collection.push(parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * extrapriemium);
+    collection.push(parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * petrol);
+    collection.push(parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * extrapriemium);
+    collection.push(parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * petrol);
   
     collection.push(parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]) * petrol);
     collection.push(parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]) * extragreen);

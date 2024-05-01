@@ -39,7 +39,7 @@ export default function EmployeeData() {
   // Handle delete employee
   const handleDelete = async (id) => {
     try {
-      await axiosInstance.delete(`${api}/api/employee/${id}`);
+      await axiosInstance.delete(`${api}/api/employee/${id}/`);
       // After deletion, fetch the updated list of employees
       fetchemployees();
     } catch (error) {

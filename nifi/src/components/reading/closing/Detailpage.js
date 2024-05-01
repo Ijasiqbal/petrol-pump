@@ -226,11 +226,10 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                         variant="outlined"
                         value={closeP}
                         size="small"
+                        type="number"
                         onChange={(e)=>{
                             const newValue = e.target.value;
-                            if (/^\d*\.?\d*$/.test(newValue)) {
-                              setcloseP(newValue);
-                            }                            
+                            setcloseP(newValue);                           
                         }}
                     />
                     <TextField 
@@ -239,23 +238,23 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                         variant="outlined"
                         value={closeD}
                         size="small"
+                        type="number"
                         onChange={(e)=>{
                             const newValue = e.target.value;
-                            if (/^\d*\.?\d*$/.test(newValue)) {
-                              setcloseD(newValue);
-                            }                            
+                            setcloseD(newValue);                            
                         }}
                     />
                     <TextField 
                         id="outlined-basic" 
-                        label="Oil Sales" 
+                        label="Oil Sales(Rs)" 
                         variant="outlined"
                         value={oil}
                         size="small"
+                        type="number"
                         onChange={(e)=>{
                             setOil(e.target.value);                        
                         }}
-                        type="number"
+                        
                     />
                     <div>
                       <Checkbox 

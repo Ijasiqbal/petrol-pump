@@ -121,15 +121,57 @@ const Opening = () => {
     setopeningReadingP('')
     setopeningReadingD('')
   };
-  function whatFuel() {
-    if (DU === 1 || DU === 2) {
-      return 'Diesel opening';
+  function whatFuel2and4() {
+    if (DU === 1 && nossleValue === 1) {
+      return 'Diesel opening(D3)';
     }
-    if (DU === 3) {
-      return 'Extra Premium opening';
+    if (DU === 1 && nossleValue === 2) {
+      return 'Diesel opening(D4)';
     }
-    if (DU === 4) {
-      return 'Extra Green opening';
+    if (DU === 2 && nossleValue === 1) {
+      return 'Diesel opening(D6)';
+    }
+    if (DU === 2 && nossleValue === 2) {
+      return 'Diesel opening(D5)';
+    }
+    if (DU === 3 && nossleValue === 1) {
+      return 'petrol opening(P6)';
+    }
+    if (DU === 3 && nossleValue === 2) {
+      return 'petrol opening(P5)';
+    }
+
+    if (DU === 4 && nossleValue === 1) {
+      return 'Extra Green opening(XD2)';
+    }
+    if (DU === 4 && nossleValue === 2) {
+      return 'Extra Green opening(XD1)';
+    }
+  };
+  function whatFuel1and3() {
+    if (DU === 1 && nossleValue === 1) {
+      return 'Petrol opening(P2)';
+    }
+    if (DU===1 && nossleValue === 2){
+      return 'Petrol opening(P1)'
+    }
+    if (DU === 2 && nossleValue === 1) {
+      return 'Petrol opening(P4)';
+    }
+    if (DU === 2 && nossleValue === 2) {
+      return 'Petrol opening(P3)';
+    }
+    if (DU === 3 && nossleValue === 1) {
+      return 'Extra Premium opening(XP2)';
+    }
+    if (DU === 3 && nossleValue === 2) {
+      return 'Extra Premium opening(XP1)';
+    }
+    if (DU === 4 && nossleValue === 1) {
+      return 'Petrol opening(P8)';
+    }
+    if (DU === 4 && nossleValue === 2) {
+      return 'Petrol opening(P7)';
     }
   };
   async function fetchnames(){
@@ -317,15 +359,17 @@ const Opening = () => {
                 </FormControl> 
                 <br />                                           
                   <TextField 
+                  sx={{minWidth:150}}
                   id="outlined-basic1" 
-                  label="Petrol Opening" 
+                  label={whatFuel1and3()}  
                   variant="outlined"
                   value={openingReadingP}
                   onChange={handleopeningReadingPChange} 
                   />
                   <TextField 
+                  
                   id="outlined-basic2" 
-                  label={whatFuel()} 
+                  label={whatFuel2and4()} 
                   variant="outlined"
                   value={openingReadingD}
                   onChange={handleopeningReadingDChange} 

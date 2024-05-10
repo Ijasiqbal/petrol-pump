@@ -37,6 +37,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     const [openP,setopenP] = useState(null);
     const [openD,setopenD] = useState(null);
     const [DU,setDU] = useState(null);
+    const [nossle,setNossle] = useState(null);
 
     const [Creditors,setCreditors] = useState([])
     const [state, setstate] = useState([]); // Object to store name: amount pairs
@@ -159,6 +160,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
             setopenP(responseData.openingP);
             setopenD(responseData.openingD);
             setDU(responseData.dispensingUnit);
+            setNossle(responseData.nossle);
+
 
         } catch (error) {
             console.error('Error fetching data:', error);            
@@ -170,15 +173,15 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         if (DU === 1) {
           fuelSale=(closeP - openP -(checkTest ? testP:0)) * petrol + (closeD - openD  -(checkTest ? testD:0)) * diesel 
         } else if (DU === 2) {
-          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
+          fuelSale=(closeP - openP -(checkTest ? testP:0))* petrol + (closeD - openD  -(checkTest ? testD:0)) * diesel
        } else if (DU === 3) {
-          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
+          fuelSale=(closeP - openP -(checkTest ? testP:0)) * extrapriemium + (closeD - openD  -(checkTest ? testD:0))* petrol
         } else if (DU === 4) {
-          fuelSale=(closeP - openP) * petrol + (closeD - openD) * diesel
+          fuelSale=(closeP - openP -(checkTest ? testP:0)) * petrol + (closeD - openD  -(checkTest ? testD:0)) * extragreen
         }
         if (oil!== null) {
           return fuelSale + parseFloat(oil);
-        }else return fuelSale;
+        }else return fuelSale.toFixed(2);
     }
 
     function received(){
@@ -203,8 +206,59 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         }
         
       }
-
+      function whatFuel2and4() {
+        if (DU === 1 && nossle === 1) {
+          return 'Diesel opening(D3)';
+        }
+        if (DU === 1 && nossle === 2) {
+          return 'Diesel opening(D4)';
+        }
+        if (DU === 2 && nossle === 1) {
+          return 'Diesel opening(D6)';
+        }
+        if (DU === 2 && nossle === 2) {
+          return 'Diesel opening(D5)';
+        }
+        if (DU === 3 && nossle === 1) {
+          return 'petrol opening(P6)';
+        }
+        if (DU === 3 && nossle === 2) {
+          return 'petrol opening(P5)';
+        }
     
+        if (DU === 4 && nossle === 1) {
+          return 'Extra Green opening(XD2)';
+        }
+        if (DU === 4 && nossle === 2) {
+          return 'Extra Green opening(XD1)';
+        }
+      };
+      function whatFuel1and3() {
+        if (DU === 1 && nossle === 1) {
+          return 'Petrol opening(P2)';
+        }
+        if (DU===1 && nossle === 2){
+          return 'Petrol opening(P1)'
+        }
+        if (DU === 2 && nossle === 1) {
+          return 'Petrol opening(P4)';
+        }
+        if (DU === 2 && nossle === 2) {
+          return 'Petrol opening(P3)';
+        }
+        if (DU === 3 && nossle === 1) {
+          return 'Extra Premium opening(XP2)';
+        }
+        if (DU === 3 && nossle === 2) {
+          return 'Extra Premium opening(XP1)';
+        }
+        if (DU === 4 && nossle === 1) {
+          return 'Petrol opening(P8)';
+        }
+        if (DU === 4 && nossle === 2) {
+          return 'Petrol opening(P7)';
+        }
+      }
     
     useEffect(() => {
         fetchdata();
@@ -214,15 +268,13 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
 
     
     return ( 
-
-        
         <div className="overlay">
             <div>
                 <h2>{fillername}</h2>
                 <div>
                     <TextField 
                         id="outlined-basic" 
-                        label="Petrol closing" 
+                        label={whatFuel1and3()} 
                         variant="outlined"
                         value={closeP}
                         size="small"
@@ -234,7 +286,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                     />
                     <TextField 
                         id="outlined-basic" 
-                        label={DU === 1 || DU === 2 ? "Diesel closing" :DU === 3 ? "Extra Premium closing":DU === 4 ? "Extra green closing":""} 
+                        label={whatFuel2and4()} 
                         variant="outlined"
                         value={closeD}
                         size="small"
@@ -265,7 +317,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                       />
                       <TextField 
                       {...(!checkTest ? {disabled: true} : {}) }
-                      label="Petrol Test"
+                      label={whatFuel1and3() ? whatFuel1and3().replace('opening', 'test') : ''}
                       size="small"
                       type="number"
                       sx={{ maxWidth: 180 }}
@@ -276,7 +328,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                       />
                       <TextField
                       {...(!checkTest ? {disabled: true} : {}) }
-                      label={DU === 1 || DU === 2 ? "Diesel test" :DU === 3 ? "Extra Premium test":DU === 4 ? "Extra green test":""}
+                      label={whatFuel2and4() ? whatFuel2and4().replace('opening', 'test') : ''}
                       size="small"
                       type="number"
                       value={testD}
@@ -410,5 +462,4 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         </div>
      );
 }
- 
 export default Detailpage;

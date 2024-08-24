@@ -4,8 +4,8 @@ import axios from "axios";
 
 
 //const baseURL = 'https://fuel-station-backend-production.up.railway.app';
-//const baseURL = 'https://fuel-station-backend.vercel.app'
-const baseURL = 'http://127.0.0.1:8000';
+const baseURL = 'https://fuel-station-backend.vercel.app'
+//const baseURL = 'http://127.0.0.1:8000';
 
 const useAxios = () => {
     const authTokenState = useSelector((state) => state.auth.authTokenState);

@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import { useSelector } from "react-redux";
 import useAxios from "../../../utils/useAxios";
@@ -24,20 +24,22 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
 
     let apiCall = useAxios();
 
-    const [closeP,setcloseP] = useState(null); 
-    const [closeD,setcloseD] = useState(null);
+    const [clossingNozzle1,setclossingNozzle1] = useState(null);
+    const [clossingNozzle2,setclossingNozzle2] = useState(null);
+    const [clossingNozzle3,setclossingNozzle3] = useState(null);
+    const [clossingNozzle4,setclossingNozzle4] = useState(null);
     const [cash,setcash] = useState(null);
     const [card,setcard] = useState(null); 
     const [paytm,setpaytm] = useState(null);
     const [oil,setOil] = useState(null)
-    const [testP,setTestP] = useState(null);
-    const [testD,setTestD] = useState(null);
+    const [testNozzle1,setTestNozzle1] = useState(null);
+    const [testNozzle2,setTestNozzle2] = useState(null);
+    const [testNozzle3,setTestNozzle3] = useState(null);
+    const [testNozzle4,setTestNozzle4] = useState(null);
 
 
-    const [openP,setopenP] = useState(null);
-    const [openD,setopenD] = useState(null);
     const [DU,setDU] = useState(null);
-    const [nossle,setNossle] = useState(null);
+    const [data,setData] = useState([]);
 
     const [Creditors,setCreditors] = useState([])
     const [state, setstate] = useState([]); // Object to store name: amount pairs
@@ -87,10 +89,12 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
     function putdata(){
 
         const dataobject = {
-            closingP:closeP,
-            closingD:closeD,
             cash:cash,
             card:card,
+            closingNozzle1:parseFloat(clossingNozzle1),
+            closingNozzle2:parseFloat(clossingNozzle2),
+            closingNozzle3:parseFloat(clossingNozzle3),
+            closingNozzle4:parseFloat(clossingNozzle4),
             paytm:paytm,
             oil:oil,
             credit:parseFloat(totalcredit),
@@ -142,7 +146,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
             }
     }
     function validateSave(){
-      if (closeP === null || closeD === null || cash === null || card === null || paytm === null) {
+      if (clossingNozzle1 === null && clossingNozzle2 === null && clossingNozzle3 === null && clossingNozzle4 === null) {
         setshowmodal1(true)
       } else {
         putdata();
@@ -157,10 +161,8 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         try {
             const response = await apiCall.get(api+`/api/readings/${fillerid}/`);
             const responseData = response.data;
-            setopenP(responseData.openingP);
-            setopenD(responseData.openingD);
+            setData(responseData);
             setDU(responseData.dispensingUnit);
-            setNossle(responseData.nossle);
 
 
         } catch (error) {
@@ -168,21 +170,51 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         }
     }
 
-    function expected() {
+
+    const expected = () => {
       let fuelSale = 0;
-        if (DU === 1) {
-          fuelSale=(closeP - openP -(checkTest ? testP:0)) * petrol + (closeD - openD  -(checkTest ? testD:0)) * diesel 
-        } else if (DU === 2) {
-          fuelSale=(closeP - openP -(checkTest ? testP:0))* petrol + (closeD - openD  -(checkTest ? testD:0)) * diesel
-       } else if (DU === 3) {
-          fuelSale=(closeP - openP -(checkTest ? testP:0)) * extrapriemium + (closeD - openD  -(checkTest ? testD:0))* petrol
-        } else if (DU === 4) {
-          fuelSale=(closeP - openP -(checkTest ? testP:0)) * petrol + (closeD - openD  -(checkTest ? testD:0)) * extragreen
-        }
-        if (oil!== null) {
-          return fuelSale + parseFloat(oil);
-        }else return fuelSale.toFixed(2);
+      if (DU === 1 && data.nozzle1and2 && !data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * diesel;
+      }
+      if (DU === 1 && data.nozzle3and4 && !data.nozzle1and2) {
+        fuelSale = (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * diesel;
+      }
+      if (DU === 1 && data.nozzle1and2 && data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * diesel + (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * diesel;
+      }
+      if (DU === 2 && data.nozzle1and2 && !data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * diesel;
+      }
+      if (DU === 2 && data.nozzle3and4 && !data.nozzle1and2) {
+        fuelSale = (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * diesel;
+      }
+      if (DU === 2 && data.nozzle1and2 && data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * diesel + (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * diesel;
+      }
+      if (DU === 3 && data.nozzle1and2 && !data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * extrapriemium + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * petrol;
+      }
+      if (DU === 3 && data.nozzle3and4 && !data.nozzle1and2) {
+        fuelSale = (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * extrapriemium + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * petrol;
+      }
+      if (DU === 3 && data.nozzle1and2 && data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * extrapriemium + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * petrol + (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * extrapriemium + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * petrol;
+      }
+      if (DU === 4 && data.nozzle1and2 && !data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * extragreen;
+      }
+      if (DU === 4 && data.nozzle3and4 && !data.nozzle1and2) {
+        fuelSale = (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * extragreen;
+      }
+      if (DU === 4 && data.nozzle1and2 && data.nozzle3and4) {
+        fuelSale = (clossingNozzle1 - data.openingNozzle1 - (checkTest ? testNozzle1 : 0)) * petrol + (clossingNozzle2 - data.openingNozzle2 - (checkTest ? testNozzle2 : 0)) * extragreen + (clossingNozzle3 - data.openingNozzle3 - (checkTest ? testNozzle3 : 0)) * petrol + (clossingNozzle4 - data.openingNozzle4 - (checkTest ? testNozzle4 : 0)) * extragreen;
+      }
+      if (oil !== null) {
+        return (fuelSale + parseFloat(oil)).toFixed(2);
+      }
+      else return fuelSale.toFixed(2);
     }
+
 
     function received(){
         const cashValue = parseFloat(cash) || 0; // Convert to a float or use 0 if it's not a valid number
@@ -190,7 +222,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         const paytmValue = parseFloat(paytm) || 0;
         let totalcredit = parseFloat(calcTotalcredit()) || 0;
     
-    return cashValue + cardValue + paytmValue + totalcredit;
+    return (cashValue + cardValue + paytmValue + totalcredit).toFixed(2);
     }
 
     async function fetchnames(){
@@ -206,60 +238,51 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
         }
         
       }
-      function whatFuel2and4() {
-        if (DU === 1 && nossle === 1) {
-          return 'Diesel opening(D3)';
-        }
-        if (DU === 1 && nossle === 2) {
-          return 'Diesel opening(D4)';
-        }
-        if (DU === 2 && nossle === 1) {
-          return 'Diesel opening(D6)';
-        }
-        if (DU === 2 && nossle === 2) {
-          return 'Diesel opening(D5)';
-        }
-        if (DU === 3 && nossle === 1) {
-          return 'petrol opening(P6)';
-        }
-        if (DU === 3 && nossle === 2) {
-          return 'petrol opening(P5)';
-        }
-    
-        if (DU === 4 && nossle === 1) {
-          return 'Extra Green opening(XD2)';
-        }
-        if (DU === 4 && nossle === 2) {
-          return 'Extra Green opening(XD1)';
-        }
-      };
-      function whatFuel1and3() {
-        if (DU === 1 && nossle === 1) {
-          return 'Petrol opening(P2)';
-        }
-        if (DU===1 && nossle === 2){
-          return 'Petrol opening(P1)'
-        }
-        if (DU === 2 && nossle === 1) {
-          return 'Petrol opening(P4)';
-        }
-        if (DU === 2 && nossle === 2) {
-          return 'Petrol opening(P3)';
-        }
-        if (DU === 3 && nossle === 1) {
-          return 'Extra Premium opening(XP2)';
-        }
-        if (DU === 3 && nossle === 2) {
-          return 'Extra Premium opening(XP1)';
-        }
-        if (DU === 4 && nossle === 1) {
-          return 'Petrol opening(P8)';
-        }
-        if (DU === 4 && nossle === 2) {
-          return 'Petrol opening(P7)';
+      const whatFuel1 = () => {
+        if (DU === 1) {
+          return 'Petrol Closing (P2) ';
+        } else if (DU === 2) {
+          return 'Petrol Closing (P4) ';
+        } else if (DU === 3) {
+          return 'Extra Premium Closing (XP2)';
+        } else if (DU === 4) {
+          return 'Petrol Closing (P8)';
         }
       }
-    
+      const whatFuel2 = () => {
+        if (DU === 1) {
+          return 'Diesel Closing (D3) ';
+        } else if (DU === 2) {
+          return 'Diesel Closing (D6) ';
+        } else if (DU === 3) {
+          return 'Extra Premium Closing (P6)';
+        } else if (DU === 4) {
+          return 'Petrol Closing (XD2)';
+        }
+      }
+      const whatFuel3 = () => {
+        if (DU === 1) {
+          return 'Petrol Closing (P1) ';
+        } else if (DU === 2) {
+          return 'Petrol Closing (P3) ';
+        } else if (DU === 3) {
+          return 'Extra Premium Closing (XP1)';
+        } else if (DU === 4) {
+          return 'Petrol Closing (P7)';
+        }
+      }
+      const whatFuel4 = () => {
+        if (DU === 1) {
+          return 'Diesel Closing (D4)';
+        } else if (DU === 2) {
+          return 'Diesel Closing (D5)';
+        } else if (DU === 3) {
+          return 'Petrol Closing (P5)';
+        } else if (DU === 4) {
+          return 'Extra Green Closing (XD1)';
+        }
+      }
+        
     useEffect(() => {
         fetchdata();
         fetchnames();
@@ -272,31 +295,65 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
             <div>
                 <h2>{fillername}</h2>
                 <div>
-                    <TextField 
+                    {data.nozzle1and2 && <div>
+                      <TextField 
+                        sx={{ minWidth: 250 }}
                         id="outlined-basic" 
-                        label={whatFuel1and3()} 
+                        label={whatFuel1()} 
                         variant="outlined"
-                        value={closeP}
+                        value={clossingNozzle1}
                         size="small"
                         type="number"
                         onChange={(e)=>{
                             const newValue = e.target.value;
-                            setcloseP(newValue);                           
+                            setclossingNozzle1(newValue);                          
                         }}
                     />
                     <TextField 
+                        sx={{ minWidth: 250 }}
                         id="outlined-basic" 
-                        label={whatFuel2and4()} 
+                        label={whatFuel2()} 
                         variant="outlined"
-                        value={closeD}
+                        value={clossingNozzle2}
                         size="small"
                         type="number"
                         onChange={(e)=>{
                             const newValue = e.target.value;
-                            setcloseD(newValue);                            
+                            setclossingNozzle2(newValue);                          
                         }}
                     />
+                      
+                      </div>}
+                    {data.nozzle3and4 && <div>
+                        <TextField 
+                            sx={{ minWidth: 250 }}
+                            id="outlined-basic" 
+                            label={whatFuel3()} 
+                            variant="outlined"
+                            value={clossingNozzle3}
+                            size="small"
+                            type="number"
+                            onChange={(e)=>{
+                                const newValue = e.target.value;
+                                setclossingNozzle3(newValue);                          
+                            }}
+                        />
+                        <TextField 
+                            sx={{ minWidth: 250 }}
+                            id="outlined-basic" 
+                            label={whatFuel4()} 
+                            variant="outlined"
+                            value={clossingNozzle4}
+                            size="small"
+                            type="number"
+                            onChange={(e)=>{
+                                const newValue = e.target.value;
+                                setclossingNozzle4(newValue);                          
+                            }}
+                        />
+                      </div>}
                     <TextField 
+                        sx={{ minWidth: 250 }}
                         id="outlined-basic" 
                         label="Oil Sales(Rs)" 
                         variant="outlined"
@@ -315,27 +372,59 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                         setcheckTest(e.target.checked);
                       }}
                       />
-                      <TextField 
-                      {...(!checkTest ? {disabled: true} : {}) }
-                      label={whatFuel1and3() ? whatFuel1and3().replace('opening', 'test') : ''}
-                      size="small"
-                      type="number"
-                      sx={{ maxWidth: 180 }}
-                      value={testP}
-                      onChange={(e)=>{
-                        setTestP(e.target.value);
-                      }}
-                      />
-                      <TextField
-                      {...(!checkTest ? {disabled: true} : {}) }
-                      label={whatFuel2and4() ? whatFuel2and4().replace('opening', 'test') : ''}
-                      size="small"
-                      type="number"
-                      value={testD}
-                      onChange={(e)=>{
-                        setTestD(e.target.value);
-                      }}
-                      />
+                      {
+                        data.nozzle1and2 && <div>
+                          <TextField 
+                          
+                          {...(!checkTest ? {disabled: true} : {}) }
+                          label={whatFuel1() ? whatFuel1().replace('Closing', 'test') : ''}
+                          size="small"
+                          type="number"
+                          sx={{ minWidth: 250 }}
+                          value={testNozzle1}
+                          onChange={(e)=>{
+                            setTestNozzle1(e.target.value);
+                          }}
+                          />
+                          <TextField
+                          sx={{ minWidth: 250 }}
+                          {...(!checkTest ? {disabled: true} : {}) }
+                          label={whatFuel2() ? whatFuel2().replace('Closing', 'test') : ''}
+                          size="small"
+                          type="number"
+                          value={testNozzle2}
+                          onChange={(e)=>{
+                            setTestNozzle2(e.target.value);
+                          }}
+                          />
+                        </div>
+                      }
+                      {
+                        data.nozzle3and4 && <div>
+                          <TextField 
+                          sx={{ minWidth: 250 }}
+                          {...(!checkTest ? {disabled: true} : {}) }
+                          label={whatFuel3() ? whatFuel3().replace('Closing', 'test') : ''}
+                          size="small"
+                          type="number"
+                          value={testNozzle3}
+                          onChange={(e)=>{
+                            setTestNozzle3(e.target.value);
+                          }}
+                          />
+                          <TextField
+                          sx={{ minWidth: 250 }}
+                          {...(!checkTest ? {disabled: true} : {}) }
+                          label={whatFuel4() ? whatFuel4().replace('Closing', 'test') : ''}
+                          size="small"
+                          type="number"
+                          value={testNozzle4}
+                          onChange={(e)=>{
+                            setTestNozzle4(e.target.value);
+                          }}
+                          />
+                        </div>
+                      }
                     </div>
                 </div>
                 
@@ -426,7 +515,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                     <br />
                     <label className="expected">received: {received()}</label>
                     <br />
-                    <label className="expected">shortage: {expected()-received()}</label>
+                    <label className="expected">shortage: {(expected() - received()).toFixed(2)}</label>
 
                     </div>
                 </div>
@@ -434,7 +523,7 @@ const Detailpage = ({setdetailpage,fillername,fillerid,refreshPage,setrefreshPag
                 <button className="btn1 active-btn" onClick={()=>{
                     expectedValue=expected();
                     receivedValue=received();
-                    shortage=(expected()-received());
+                    shortage=(expected()-received()).toFixed(2);
                     totalcredit=calcTotalcredit();
                     validateSave();
                 }}>save</button>

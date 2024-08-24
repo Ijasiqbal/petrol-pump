@@ -6,12 +6,13 @@ import TextField from '@mui/material/TextField';
 import './Opening.css'
 import { useEffect, useState } from 'react';
 import { UseReadingcontext } from '../../../Readingcontext.js';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import ErrorModal from '../../../ErrorModal';
 import ReactLoading from 'react-loading';
 import axiosInstance from '../../../utils/axiosInstance.js';
 import { setPetrol,setDiesel,setExtragreen,setExtrapriemium } from '../../../Redux/PriceSlice.js';
 import { useSelector, useDispatch } from 'react-redux'
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 
 const Opening = () => {
@@ -28,9 +29,12 @@ const Opening = () => {
 
   const [name, setname] = useState('');
   const [DU,setDU] = useState('')
-  const [nossleValue, setNossleValue] = useState('');
-  const [openingReadingP, setopeningReadingP] = useState('');
-  const [openingReadingD, setopeningReadingD] = useState('');
+  const [nozzle1and2,setnozzle1and2] = useState(false);
+  const [nozzle3and4,setnozzle3and4] = useState(false);
+  const [openingNozzle1, setopeningNozzle1] = useState('');
+  const [openingNozzle2, setopeningNozzle2] = useState('');
+  const [openingNozzle3, setopeningNozzle3] = useState('');
+  const [openingNozzle4, setopeningNozzle4] = useState('');
   const [employeenames,setemployeenames] = useState([]);
 
   const [showmodal,setShowmodal] = useState(false);
@@ -99,81 +103,20 @@ const Opening = () => {
   const handleDUchange = (event) => {
     setDU(event.target.value);
   };
-  const handleNossleChange = (event) => {
-    setNossleValue(event.target.value);
-  };
-  const handleopeningReadingPChange = (event) => {
-    const newValue = event.target.value;
-    if (/^\d*\.?\d*$/.test(newValue)) {
-      setopeningReadingP(newValue);
-    }
-  };
-  const handleopeningReadingDChange = (event) => {
-    const newValue = event.target.value;
-    if (/^\d*\.?\d*$/.test(newValue)) {
-      setopeningReadingD(newValue);
-    }
-  };
+
+
+
   function resetform(){
     setname('')
     setDU('')
-    setNossleValue('')
-    setopeningReadingP('')
-    setopeningReadingD('')
+    setnozzle1and2(false)
+    setnozzle3and4(false)
+    setopeningNozzle1('')
+    setopeningNozzle2('')
+    setopeningNozzle3('')
+    setopeningNozzle4('')
   };
-  function whatFuel2and4() {
-    if (DU === 1 && nossleValue === 1) {
-      return 'Diesel opening(D3)';
-    }
-    if (DU === 1 && nossleValue === 2) {
-      return 'Diesel opening(D4)';
-    }
-    if (DU === 2 && nossleValue === 1) {
-      return 'Diesel opening(D6)';
-    }
-    if (DU === 2 && nossleValue === 2) {
-      return 'Diesel opening(D5)';
-    }
-    if (DU === 3 && nossleValue === 1) {
-      return 'petrol opening(P6)';
-    }
-    if (DU === 3 && nossleValue === 2) {
-      return 'petrol opening(P5)';
-    }
 
-    if (DU === 4 && nossleValue === 1) {
-      return 'Extra Green opening(XD2)';
-    }
-    if (DU === 4 && nossleValue === 2) {
-      return 'Extra Green opening(XD1)';
-    }
-  };
-  function whatFuel1and3() {
-    if (DU === 1 && nossleValue === 1) {
-      return 'Petrol opening(P2)';
-    }
-    if (DU===1 && nossleValue === 2){
-      return 'Petrol opening(P1)'
-    }
-    if (DU === 2 && nossleValue === 1) {
-      return 'Petrol opening(P4)';
-    }
-    if (DU === 2 && nossleValue === 2) {
-      return 'Petrol opening(P3)';
-    }
-    if (DU === 3 && nossleValue === 1) {
-      return 'Extra Premium opening(XP2)';
-    }
-    if (DU === 3 && nossleValue === 2) {
-      return 'Extra Premium opening(XP1)';
-    }
-    if (DU === 4 && nossleValue === 1) {
-      return 'Petrol opening(P8)';
-    }
-    if (DU === 4 && nossleValue === 2) {
-      return 'Petrol opening(P7)';
-    }
-  };
   async function fetchnames(){
     try{
       const response = await axiosInstance.get(api+'/api/employee/');
@@ -187,12 +130,57 @@ const Opening = () => {
     
   };
   function validateSave(){
-    if (name === '' || DU === '' || nossleValue === '' || openingReadingP === '' || openingReadingD === '') {
+    if (name === '' || DU === '' || nozzle1and2 && (openingNozzle1 === '' || openingNozzle2 === '')|| nozzle3and4 && (openingNozzle3 === '' || openingNozzle4 === '')) {
       setLoading(false)
       setShowmodal3(true)
     }
     else {
       saveData();
+    }
+  }
+
+  const whatFuel1 = () => {
+    if (DU === 1) {
+      return 'Petrol Opening (P2) ';
+    } else if (DU === 2) {
+      return 'Petrol Opening (P4) ';
+    } else if (DU === 3) {
+      return 'Extra Premium Opening (XP2)';
+    } else if (DU === 4) {
+      return 'Petrol Opening (P8)';
+    }
+  }
+  const whatFuel2 = () => {
+    if (DU === 1) {
+      return 'Diesel Opening (D3) ';
+    } else if (DU === 2) {
+      return 'Diesel Opening (D6) ';
+    } else if (DU === 3) {
+      return 'Extra Premium Opening (P6)';
+    } else if (DU === 4) {
+      return 'Petrol Opening (XD2)';
+    }
+  }
+  const whatFuel3 = () => {
+    if (DU === 1) {
+      return 'Petrol Opening (P1) ';
+    } else if (DU === 2) {
+      return 'Petrol Opening (P3) ';
+    } else if (DU === 3) {
+      return 'Extra Premium Opening (XP1)';
+    } else if (DU === 4) {
+      return 'Petrol Opening (P7)';
+    }
+  }
+  const whatFuel4 = () => {
+    if (DU === 1) {
+      return 'Diesel Opening (D4)';
+    } else if (DU === 2) {
+      return 'Diesel Opening (D5)';
+    } else if (DU === 3) {
+      return 'Petrol Opening (P5)';
+    } else if (DU === 4) {
+      return 'Extra Green Opening (XD1)';
     }
   }
 
@@ -204,9 +192,12 @@ const Opening = () => {
     const requestData = {
       name: name,
       dispensingUnit:DU,
-      nossle: nossleValue,
-      openingP: openingReadingP,
-      openingD: openingReadingD,
+      nozzle1and2: nozzle1and2,
+      nozzle3and4: nozzle3and4,
+      openingNozzle1: parseFloat(openingNozzle1) || null, 
+      openingNozzle2: parseFloat(openingNozzle2) || null, 
+      openingNozzle3: parseFloat(openingNozzle3) || null, 
+      openingNozzle4: parseFloat(openingNozzle4) || null,
       date: currentDate, 
       time: currentTime,
     };
@@ -312,7 +303,7 @@ const Opening = () => {
           }} className='btn2 active-btn'>Prev</button>
           
           
-          
+          +
           </div>
             <div className='input-row'>
                 <FormControl sx={{ minWidth: 150 }}>
@@ -323,6 +314,7 @@ const Opening = () => {
                     value={name}
                     label="Filler"
                     onChange={handleNameChange}
+                    required
                   >
                     {employeenames.map((employeename)=>(
                       <MenuItem value={employeename}>{employeename}</MenuItem>
@@ -337,6 +329,7 @@ const Opening = () => {
                     value={DU}
                     label="Dispensing unit"
                     onChange={handleDUchange}
+                    required
                   >
                     <MenuItem value={1}>1</MenuItem>
                     <MenuItem value={2}>2</MenuItem>
@@ -344,39 +337,81 @@ const Opening = () => {
                     <MenuItem value={4}>4</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl sx={{minWidth:150}} >
-                  <InputLabel id="demo-simple-select-label">Nossle</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={nossleValue}
-                    label="Nossle"
-                    onChange={handleNossleChange}
-                  >
-                    <MenuItem value={1}>1 & 2</MenuItem>
-                    <MenuItem value={2}>3 & 4</MenuItem>
-                  </Select>
+                <FormControl sx={{minWidth:150, ml: 2 }} >
+                  <FormControlLabel sx={{height: 30}}
+                    control={<Checkbox 
+                      checked={nozzle1and2}
+                      onChange={(e) => setnozzle1and2(e.target.checked)}
+                    />}
+                    label="Nozzle1&2"
+                    value={nozzle1and2}
+                  />
+                  <FormControlLabel sx={{height: 30}}
+                    control={<Checkbox 
+                      checked={nozzle3and4}
+                      onChange={(e) => setnozzle3and4(e.target.checked)}
+                    />}
+                    label="Nozzle3&4"
+                  
+                  />
                 </FormControl> 
-                <br />                                           
+                <br />  
+                { nozzle1and2 ? (
+                  <> 
                   <TextField 
-                  sx={{minWidth:150}}
+                  sx={{minWidth:300}}
                   id="outlined-basic1" 
-                  label={whatFuel1and3()}  
+                  label={whatFuel1()} 
+                  type='number' 
                   variant="outlined"
-                  value={openingReadingP}
-                  onChange={handleopeningReadingPChange} 
+                  value={openingNozzle1}
+                  onChange={(e)=>{setopeningNozzle1(e.target.value)}} 
+                  inputProps={{ step: "0.01" }}
+                  required
                   />
                   <TextField 
-                  
+                  sx={{minWidth:300}}
                   id="outlined-basic2" 
-                  label={whatFuel2and4()} 
+                  label={whatFuel2()} 
+                  type='number'
                   variant="outlined"
-                  value={openingReadingD}
-                  onChange={handleopeningReadingDChange} 
-                  /> 
+                  value={openingNozzle2}
+                  onChange={(e)=>{setopeningNozzle2(e.target.value)}} 
+                  inputProps={{ step: "0.01" }}
+                  required
+                  />                  
+                  </>
+                ) : null }   
+                { nozzle3and4 ? (
+                  <> 
+                  <TextField 
+                  sx={{minWidth:300}}
+                  id="outlined-basic3" 
+                  label={whatFuel3()} 
+                  type='number' 
+                  variant="outlined"
+                  value={openingNozzle3}
+                  onChange={(e)=>{setopeningNozzle3(e.target.value)}} 
+                  inputProps={{ step: "0.01" }}
+                  required
+                  />
+                  <TextField 
+                  sx={{minWidth:300}}
+                  id="outlined-basic4" 
+                  label={whatFuel4()} 
+                  type='number'
+                  variant="outlined"
+                  value={openingNozzle4}
+                  onChange={(e)=>{setopeningNozzle4(e.target.value)}} 
+                  inputProps={{ step: "0.01" }}
+                  required
+                  />                  
+                  </>
+                ) : null }
+                   
                 <button type='submit' onClick={()=>{
                   setLoading(true)
-                  validateSave();
+                  validateSave()
                 }} className='btn2 active-btn'>Add</button>
                 <div>
                   {showmodal && (<ErrorModal message = {"Record not created. Please check all fields and check whether server is down"} onClose = {()=>{setShowmodal(false)}} />)}

@@ -26,6 +26,7 @@ const[fillerid,setfillerid] = useState(null)
 
 const fetchdata = async() => {
     try{
+        console.log('Fetching data...');
         const response = await apiCall.get(api+'/api/readings/');
         console.log('Response data:', response.data);
         setdata(response.data);
@@ -38,6 +39,7 @@ const fetchdata = async() => {
 
 useEffect(() => {
     setTimeout(() => {
+        
         fetchdata();
     }, 1000);
 },[refreshPage]);
@@ -47,7 +49,7 @@ useEffect(() => {
 
             <div className="container">
                 {data.map( (item,index) => (
-                    (item.closingP === null) ? (
+                    (item.received === null) ? (
                         <React.Fragment key={index}>
                             <CssBaseline />
                             <Container maxWidth="sm" sx={{margin:'10px 0',}}>
@@ -55,7 +57,10 @@ useEffect(() => {
                                 <h4 className='nametag'>
                                     {item.name}    
                                 </h4>
-                                <h6>nozzle:{(item.nossle===1 ? '1 & 2' : '2 & 3' )}</h6>                  
+                                <div>
+                                    <h6>{item.nozzle1and2 ? 'Nozzle 1 & 2' : ''}</h6>
+                                    <h6>{item.nozzle3and4 ? 'Nozzle 3 & 4' : ''}</h6>
+                                </div>
                                 <button className='btn2'onClick={()=> {
                                     setdetailpage(true);
                                     setfillername(item.name)

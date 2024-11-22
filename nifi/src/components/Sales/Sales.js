@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Setopening from "./Setopening";
 import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
-import { format, subDays } from "date-fns";
+import { format, set, subDays } from "date-fns";
 import { useSelector } from "react-redux";
 import ErrorModal from "../../ErrorModal";
 import useAxios from "../../utils/useAxios";
@@ -21,6 +21,10 @@ const Sales = () => {
   const [fuel, setfuel] = useState(0);
   const [cash, setcash] = useState(0);
   const [showmodal, setShowmodal] = useState(false);
+  const [petrolSales, setPetrolSales] = useState(0);
+  const [dieselSales, setDieselSales] = useState(0);
+  const [extraPremiumSales, setExtraPremiumSales] = useState(0);
+  const [extraGreenSales, setExtraGreenSales] = useState(0);
 
   // Additional state for new fields
   const [totalCards, setTotalCards] = useState(0);
@@ -62,36 +66,40 @@ const Sales = () => {
   ])
 
   function CalcFuelSales() {
-
-    let collection = [];
+    let petrolSales = 0;
+    let dieselSales = 0;
+    let extrapriemiumSales = 0;
+    let extragreenSales = 0;
+  
+    petrolSales += parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0] - test[0][0]) * petrol;
+    dieselSales += parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1] - test[0][1]) * diesel;
+    petrolSales += parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]) * petrol;
+    dieselSales += parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]) * diesel;
+  
+    petrolSales += parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]) * petrol;
+    dieselSales += parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]) * diesel;
+    petrolSales += parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]) * petrol;
+    dieselSales += parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]) * diesel;
+  
+    extrapriemiumSales += parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * extrapriemium;
+    petrolSales += parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * petrol;
+    extrapriemiumSales += parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * extrapriemium;
+    petrolSales += parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * petrol;
+  
+    petrolSales += parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]) * petrol;
+    extragreenSales += parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]) * extragreen;
+    petrolSales += parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2] - test[3][2]) * petrol;
+    extragreenSales += parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3] - test[3][3]) * extragreen;
+  
+    let totalSales = petrolSales + dieselSales + extrapriemiumSales + extragreenSales;
+  
+    setPetrolSales(petrolSales);
+    setDieselSales(dieselSales);
+    setExtraPremiumSales(extrapriemiumSales);
+    setExtraGreenSales(extragreenSales);
     
+    return totalSales;
 
-    collection.push(parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0] - test[0][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1] - test[0][1]) * diesel);
-    collection.push(parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]) * diesel);
-
-    collection.push(parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]) * diesel);
-    collection.push(parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]) * diesel);
-
-    collection.push(parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * extrapriemium);
-    collection.push(parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * extrapriemium);
-    collection.push(parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * petrol);
-
-    collection.push(parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]) * extragreen);
-    collection.push(parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2] - test[3][2]) * petrol);
-    collection.push(parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3] - test[3][3]) * extragreen);
-
-    let sum = 0;
-    for (let i = 0; i < collection.length; i++) {
-      sum += collection[i];
-    }
-    console.log(sum)
-    return sum;
   }
 
   function CalcShortage() {
@@ -99,8 +107,8 @@ const Sales = () => {
     let income = parseFloat(totalCards) + parseFloat(totalPaytm) + parseFloat(cash) + parseFloat(credit) + parseFloat(closingBalance);
     return income - expense;
   }
-  function postSales() {
 
+  function postSales() {
     const dataobject = {
       shortage: parseFloat(CalcShortage()),
       fuelSales: parseFloat(fuel),
@@ -136,8 +144,6 @@ const Sales = () => {
       .catch((error) => {
         console.error('Error updating database:', error);
       })
-
-
   }
 
   const fetchreadings = async () => {
@@ -168,6 +174,7 @@ const Sales = () => {
       console.log('Error fetching credit transactions', error);
     }
   }
+
   async function CalcOpeningBalance() {
     try {
       const response = await apiCall.get(api + '/api/sales/');
@@ -179,12 +186,12 @@ const Sales = () => {
       console.error('Error fetching sales:', error);
     }
   }
+
   function validatePrice() {
     if (petrol === '' || diesel === '' || extrapriemium === '' || extragreen === '') {
       setShowmodal(true)
     }
   }
-
 
   useEffect(() => {
     fetchreadings();
@@ -231,10 +238,17 @@ const Sales = () => {
           <button className="btn1" onClick={() => setclosingpage(true)}>
             Set closing
           </button>
-          <button className="btn1" on onClick={() => {
-            validatePrice()
-            setfuel(CalcFuelSales())
+          <button className="btn1" onClick={() => {
+            validatePrice();
+            const sales = CalcFuelSales();
+            setfuel(sales);
           }}>Calculate</button>
+          <div className="salesSplit">
+            <p>Petrol Sales: {petrolSales}</p>
+            <p>Diesel Sales: {dieselSales}</p>
+            <p>Extra Premium Sales: {extraPremiumSales}</p>
+            <p>Extra Green Sales: {extraGreenSales}</p>
+          </div>
         </div>
         {/* Debit */}
         <div className="debit">

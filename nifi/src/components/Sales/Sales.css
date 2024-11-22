@@ -16,6 +16,36 @@
 .black{
     color: black;
 }
+.dateContainer{
+    display: flex;
+    margin-bottom: 10px;
+    
+}
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.DateBtn{
+    margin-left: 1.5%;
+    background-color: rgb(248, 227, 223);
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+.DateBtn:hover{
+    background-color: rgb(220,53,69);
+    color: white;
+}
+.salesSplit{
+    margin-left: 19%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    p{
+        margin-bottom: 5px;
+    }
+
+}
 @media (max-width:850px){
     .sales{
         max-width: 93vw;

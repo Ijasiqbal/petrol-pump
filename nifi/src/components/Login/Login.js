@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useState } from 'react';
 import { UseReadingcontext } from '../../Readingcontext';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Login = () => {
 
@@ -22,6 +23,7 @@ const Login = () => {
             console.log('response.data',response.data);
 
             localStorage.setItem('auth_token', JSON.stringify(response.data));
+            console.log('stored token', response.data);
             navigate('/home');
         })
         .catch(err => {

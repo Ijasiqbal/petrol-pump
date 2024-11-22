@@ -13,6 +13,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import './Dashboard.css';
 import useAxios from '../../utils/useAxios';
+import { FaPrint } from 'react-icons/fa';
 
 export default function Dashboard() {
   function createData(
@@ -126,6 +127,104 @@ export default function Dashboard() {
     }
   }
 
+  const handlePrint = () => {
+    const printableRows = rows.filter((row) => {
+      const rowMonth = row.date.split('-')[1];
+      const rowDate = row.date.split('-')[2];
+      return (
+        (name === null || row.name === name) &&
+        (date === null || rowDate === date) &&
+        (month === null || month === rowMonth)
+      );
+    });
+
+    const printableContent = `
+      <html>
+      <head>
+        <title>Filtered Data</title>
+        <style>
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          table, th, td {
+            border: 1px solid black;
+          }
+          th, td {
+            padding: 8px;
+            text-align: left;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Filtered Data</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>DU</th>
+              <th>Expected</th>
+              <th>Received</th>
+              <th>Shortage</th>
+              <th>Date</th>
+              <th>Cash</th>
+              <th>Card</th>
+              <th>Paytm</th>
+              <th>Oil Sales</th>
+              <th>Credit</th>
+              <th>Opening Nozzle 1</th>
+              <th>Opening Nozzle 2</th>
+              <th>Opening Nozzle 3</th>
+              <th>Opening Nozzle 4</th>
+              <th>Closing Nozzle 1</th>
+              <th>Closing Nozzle 2</th>
+              <th>Closing Nozzle 3</th>
+              <th>Closing Nozzle 4</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${printableRows
+              .map(
+                (row) => `
+              <tr>
+                <td>${row.id}</td>
+                <td>${row.name}</td>
+                <td>${row.dispensingUnit}</td>
+                <td>${row.expected ?? '-'}</td>
+                <td>${row.received ?? '-'}</td>
+                <td style="color: ${row.shortage > 0 ? 'red' : 'green'};">
+                  ${row.shortage}
+                </td>
+                <td>${row.date}</td>
+                <td>${row.cash ?? '-'}</td>
+                <td>${row.card ?? '-'}</td>
+                <td>${row.paytm ?? '-'}</td>
+                <td>${row.oil ?? '-'}</td>
+                <td>${row.credit ?? '-'}</td>
+                <td>${row.openingNozzle1 ?? '-'}</td>
+                <td>${row.openingNozzle2 ?? '-'}</td>
+                <td>${row.openingNozzle3 ?? '-'}</td>
+                <td>${row.openingNozzle4 ?? '-'}</td>
+                <td>${row.closingNozzle1 ?? '-'}</td>
+                <td>${row.closingNozzle2 ?? '-'}</td>
+                <td>${row.closingNozzle3 ?? '-'}</td>
+                <td>${row.closingNozzle4 ?? '-'}</td>
+              </tr>`
+              )
+              .join('')}
+          </tbody>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printableContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   useEffect(() => {
     fetchdata();
     fetchnames();
@@ -203,6 +302,12 @@ export default function Dashboard() {
           ))}
         </Select>
       </FormControl>
+      <div className='printBtn' onClick={handlePrint} >
+        <div className='btnContainer'>
+          <FaPrint  />
+          <p>Print</p>
+        </div>
+      </div>
 
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">

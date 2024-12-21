@@ -21,6 +21,12 @@ const Sales = () => {
   const [fuel, setfuel] = useState(0);
   const [cash, setcash] = useState(0);
   const [showmodal, setShowmodal] = useState(false);
+
+  const [petrolUnits, setPetrolUnits] = useState(0);
+  const [dieselUnits, setDieselUnits] = useState(0);
+  const [extrapriemiumUnits, setExtraPremiumUnits] = useState(0);
+  const [extragreenUnits, setExtraGreenUnits] = useState(0);
+
   const [petrolSales, setPetrolSales] = useState(0);
   const [dieselSales, setDieselSales] = useState(0);
   const [extraPremiumSales, setExtraPremiumSales] = useState(0);
@@ -66,30 +72,42 @@ const Sales = () => {
   ])
 
   function CalcFuelSales() {
+    let petrolUnits = 0;
+    let dieselUnits = 0;
+    let extrapriemiumUnits = 0;
+    let extragreenUnits = 0;
+
     let petrolSales = 0;
     let dieselSales = 0;
     let extrapriemiumSales = 0;
     let extragreenSales = 0;
+
+    petrolUnits += parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0] - test[0][0]);
+    dieselUnits += parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1] - test[0][1]);
+    petrolUnits += parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]);
+    dieselUnits += parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]);
+
+    petrolUnits += parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]); 
+    dieselUnits += parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]);
+    petrolUnits += parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]);
+    dieselUnits += parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]);
+
+    extrapriemiumUnits += parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]);
+    petrolUnits += parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]);
+    extrapriemiumUnits += parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]);
+    petrolUnits += parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]);
+
+    petrolUnits += parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]);
+    extragreenUnits += parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]);
+    petrolUnits += parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2] - test[3][2]);
+    extragreenUnits += parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3] - test[3][3]);
+
+    petrolSales = parseInt(petrolUnits * petrol);
+    dieselSales = parseInt(dieselUnits * diesel);
+    extrapriemiumSales = parseInt(extrapriemiumUnits * extrapriemium);
+    extragreenSales = parseInt(extragreenUnits * extragreen);
+
   
-    petrolSales += parseFloat(CloseDuNozzles[0][0] - OpenDuNozzles[0][0] - test[0][0]) * petrol;
-    dieselSales += parseFloat(CloseDuNozzles[0][1] - OpenDuNozzles[0][1] - test[0][1]) * diesel;
-    petrolSales += parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]) * petrol;
-    dieselSales += parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]) * diesel;
-  
-    petrolSales += parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]) * petrol;
-    dieselSales += parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]) * diesel;
-    petrolSales += parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]) * petrol;
-    dieselSales += parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]) * diesel;
-  
-    extrapriemiumSales += parseFloat(CloseDuNozzles[2][0] - OpenDuNozzles[2][0] - test[2][0]) * extrapriemium;
-    petrolSales += parseFloat(CloseDuNozzles[2][1] - OpenDuNozzles[2][1] - test[2][1]) * petrol;
-    extrapriemiumSales += parseFloat(CloseDuNozzles[2][2] - OpenDuNozzles[2][2] - test[2][2]) * extrapriemium;
-    petrolSales += parseFloat(CloseDuNozzles[2][3] - OpenDuNozzles[2][3] - test[2][3]) * petrol;
-  
-    petrolSales += parseFloat(CloseDuNozzles[3][0] - OpenDuNozzles[3][0] - test[3][0]) * petrol;
-    extragreenSales += parseFloat(CloseDuNozzles[3][1] - OpenDuNozzles[3][1] - test[3][1]) * extragreen;
-    petrolSales += parseFloat(CloseDuNozzles[3][2] - OpenDuNozzles[3][2] - test[3][2]) * petrol;
-    extragreenSales += parseFloat(CloseDuNozzles[3][3] - OpenDuNozzles[3][3] - test[3][3]) * extragreen;
   
     let totalSales = petrolSales + dieselSales + extrapriemiumSales + extragreenSales;
   
@@ -97,6 +115,11 @@ const Sales = () => {
     setDieselSales(dieselSales);
     setExtraPremiumSales(extrapriemiumSales);
     setExtraGreenSales(extragreenSales);
+
+    setPetrolUnits(parseFloat(petrolUnits.toFixed(2)));
+    setDieselUnits(parseFloat(dieselUnits.toFixed(2)));
+    setExtraPremiumUnits(parseFloat(extrapriemiumUnits.toFixed(2)));
+    setExtraGreenUnits(parseFloat(extragreenUnits.toFixed(2)));
     
     return totalSales;
 
@@ -243,12 +266,24 @@ const Sales = () => {
             const sales = CalcFuelSales();
             setfuel(sales);
           }}>Calculate</button>
-          <div className="salesSplit">
-            <p>Petrol Sales: {petrolSales}</p>
-            <p>Diesel Sales: {dieselSales}</p>
-            <p>Extra Premium Sales: {extraPremiumSales}</p>
-            <p>Extra Green Sales: {extraGreenSales}</p>
+          <div className="salesSplitContainer">
+            <div className="salesSplit">
+              <p>Extra Green Units: {extragreenUnits}</p>
+              <p>Diesel Units: {dieselUnits}</p>
+              <p>Petrol Units: {petrolUnits}</p>
+              <p>Extra Premium Units: {extrapriemiumUnits}</p>
+              
+            </div>
+            <div className="salesSplit">
+              <p>Extra Green Sales: {extraGreenSales}</p>
+              <p>Diesel Sales: {dieselSales}</p>
+              <p>Petrol Sales: {petrolSales}</p>
+              <p>Extra Premium Sales: {extraPremiumSales}</p>
+              
+            </div>
+            
           </div>
+          
         </div>
         {/* Debit */}
         <div className="debit">

@@ -42,6 +42,15 @@ const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles,test,setTest}
         ]);
     }
 
+    function handleClearTest(){
+        setTest([
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+            [0,0,0,0],
+        ])
+    }
+
 
     async function handlePrev(){
         apiCall.get(api+'/api/closingSales/')
@@ -112,6 +121,7 @@ const Setopening = ({setopeningpage,OpenDuNozzles,setOpenDuNozzles,test,setTest}
                 <button className="btn2" onClick={()=>{setopeningpage(false)}}>save</button>
                 <button className="btn2" onClick={handlePrev}>Previous</button>
                 <button className="btn2" onClick={handleClear}>Clear</button>
+                <button className="btn2" onClick={handleClearTest}>Clear Test</button>
             </div>
             
         </div>

@@ -135,6 +135,10 @@ const Sales = () => {
     const dataobject = {
       shortage: parseFloat(CalcShortage()),
       fuelSales: parseFloat(fuel),
+      extraGreenSales: parseFloat(extraGreenSales),
+      dieselSales: parseFloat(dieselSales),
+      petrolSales: parseFloat(petrolSales),
+      extraPremiumSales: parseFloat(extraPremiumSales),
       oil: parseFloat(oil),
       itemSales: parseFloat(item),
       debit: parseFloat(debit),

@@ -39,6 +39,10 @@ const SalesTable = () => {
                   <TableRow sx={{background: 'rgb(255, 239, 236)'}}>
                     <TableCell>ID</TableCell>
                     <TableCell align="right">Fuel Sales</TableCell>
+                    <TableCell align="right">ExtraGreen Sales</TableCell>
+                    <TableCell align="right">Diesel Sales</TableCell>
+                    <TableCell align="right">Petrol Sales</TableCell>
+                    <TableCell align="right">ExtraPremium Sales</TableCell>
                     <TableCell align="right">Shortage</TableCell>
                     <TableCell align="right">Date</TableCell>
                     <TableCell align="right">Time</TableCell>
@@ -57,8 +61,12 @@ const SalesTable = () => {
                   {sales.map((sale) => (
                     <TableRow key={sale.id}>
                       <TableCell>{sale.id}</TableCell>
-                      <TableCell sx={{ minWidth: 120}}align="right">{sale.fuelSales}</TableCell>
-                      <TableCell sx={{ minWidth: 120}}align="right">{sale.shortage}</TableCell>
+                      <TableCell sx={{ minWidth: 90}}align="right">{sale.fuelSales}</TableCell>
+                      <TableCell sx={{ minWidth: 90}}align="right">{sale.extraGreenSales}</TableCell>
+                      <TableCell sx={{ minWidth: 90}}align="right">{sale.dieselSales}</TableCell>
+                      <TableCell sx={{ minWidth: 90}}align="right">{sale.petrolSales}</TableCell>
+                      <TableCell sx={{ minWidth: 50}}align="right">{sale.extraPremiumSales}</TableCell>
+                      <TableCell sx={{ minWidth: 90}}align="right">{sale.shortage}</TableCell>
                       <TableCell sx={{ minWidth: 120}} align="right">{sale.date}</TableCell>
                       <TableCell align="right">{sale.time.slice(0,8)}</TableCell>
                       <TableCell align="right">{sale.debit}</TableCell>

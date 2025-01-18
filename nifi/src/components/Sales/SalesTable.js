@@ -21,6 +21,7 @@ const SalesTable = () => {
       const salesData = response.data;
       salesData.reverse();
       setSales(salesData);
+      console.log('Sales data:', salesData);
     } catch (error) {
       console.error('Error fetching sales data:', error);
     }

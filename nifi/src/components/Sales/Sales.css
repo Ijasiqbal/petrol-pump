@@ -38,17 +38,36 @@
     color: white;
 }
 .salesSplit{
+    min-width: 165px;
     margin-top: 10px;
     margin-right: 7%;
     margin-bottom: 10px;
     p{
         margin-bottom: 5px;
     }
-
 }
+.salesSplit2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+  }
+  
+  .salesSplit2 label {
+  }
+  
+  .salesSplit2 input {
+    margin-top: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
 .salesSplitContainer{
     display:  flex;
-    margin-left: 18%;
+    margin-left: 0%;
     
 }
 @media (max-width:850px){

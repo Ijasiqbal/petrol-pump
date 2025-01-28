@@ -278,12 +278,23 @@ const Sales = () => {
               <p>Extra Premium Units: {extrapriemiumUnits}</p>
               
             </div>
-            <div className="salesSplit">
-              <p>Extra Green Sales: {extraGreenSales}</p>
-              <p>Diesel Sales: {dieselSales}</p>
-              <p>Petrol Sales: {petrolSales}</p>
-              <p>Extra Premium Sales: {extraPremiumSales}</p>
-              
+            <div className="salesSplit2">
+              <label>
+                Extra Green Sales: 
+                <input type="number" value={extraGreenSales} onChange={(e) => setExtraGreenSales(e.target.value)} />
+              </label>
+              <label>
+                Diesel Sales: 
+                <input type="number" value={dieselSales} onChange={(e) => setDieselSales(e.target.value)} />
+              </label>
+              <label>
+                Petrol Sales: 
+                <input type="number" value={petrolSales} onChange={(e) => setPetrolSales(e.target.value)} />
+              </label>
+              <label>
+                Extra Premium Sales: 
+                <input type="number" value={extraPremiumSales} onChange={(e) => setExtraPremiumSales(e.target.value)} />
+              </label>
             </div>
             
           </div>

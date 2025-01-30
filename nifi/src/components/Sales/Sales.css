@@ -68,11 +68,17 @@
 .salesSplitContainer{
     display:  flex;
     margin-left: 0%;
-    
+    margin-bottom: 20px;
 }
 @media (max-width:850px){
     .sales{
         max-width: 93vw;
+    }
+    .salesSplitContainer{
+        flex-direction: column;
+    }
+    .salesSplit2{
+        grid-template-columns: 1fr;
     }
 }
 

@@ -166,11 +166,22 @@ const Sales = () => {
         setClosingBalance(0);
         setOpeningBalance(0);
         setSelectedDate('');
+        setPetrolSales(0)
+        setDieselSales(0)
+        setExtraGreenSales(0)
+        setExtraPremiumSales(0)
+
+
 
       })
       .catch((error) => {
         console.error('Error updating database:', error);
       })
+  }
+  function AddFuelSales(){
+    const total = parseFloat(petrolSales)+parseFloat(dieselSales)+parseFloat(extraPremiumSales)+parseFloat(extraGreenSales)
+
+    setfuel(total)
   }
 
   const fetchreadings = async () => {
@@ -225,6 +236,11 @@ const Sales = () => {
     fetchcredits();
   }, []);
 
+  useEffect(() => {
+    AddFuelSales();
+  }, [extraGreenSales, dieselSales, petrolSales, extraPremiumSales]);
+
+
   return (
     <div >
       {showmodal && (<ErrorModal message={"Please set prices first"} onClose={() => { setShowmodal(false) }} />)}
@@ -271,29 +287,38 @@ const Sales = () => {
             setfuel(sales);
           }}>Calculate</button>
           <div className="salesSplitContainer">
+            {(extragreenUnits !== 0 || dieselUnits !== 0 || petrolUnits !== 0 || extrapriemiumUnits !== 0 )&&(
             <div className="salesSplit">
               <p>Extra Green Units: {extragreenUnits}</p>
               <p>Diesel Units: {dieselUnits}</p>
               <p>Petrol Units: {petrolUnits}</p>
               <p>Extra Premium Units: {extrapriemiumUnits}</p>
-              
             </div>
+          )}
             <div className="salesSplit2">
               <label>
                 Extra Green Sales: 
-                <input type="number" value={extraGreenSales} onChange={(e) => setExtraGreenSales(e.target.value)} />
+                <input type="number" value={extraGreenSales} onChange={(e) => {
+                  setExtraGreenSales(e.target.value)
+                }} />
               </label>
               <label>
                 Diesel Sales: 
-                <input type="number" value={dieselSales} onChange={(e) => setDieselSales(e.target.value)} />
+                <input type="number" value={dieselSales} onChange={(e) => {
+                  setDieselSales(e.target.value)
+                }} />
               </label>
               <label>
                 Petrol Sales: 
-                <input type="number" value={petrolSales} onChange={(e) => setPetrolSales(e.target.value)} />
+                <input type="number" value={petrolSales} onChange={(e) => {
+                  setPetrolSales(e.target.value)
+                }} />
               </label>
               <label>
-                Extra Premium Sales: 
-                <input type="number" value={extraPremiumSales} onChange={(e) => setExtraPremiumSales(e.target.value)} />
+                XP Sales: 
+                <input type="number" value={extraPremiumSales} onChange={(e) => {
+                  setExtraPremiumSales(e.target.value)
+                }} />
               </label>
             </div>
             

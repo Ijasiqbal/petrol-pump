@@ -1,4 +1,4 @@
-import { setAuthToken } from "../Redux/AuthSlice";
+import { setAuthToken, clearAuthToken } from "../Redux/AuthSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
@@ -14,57 +14,46 @@ const useAxios = () => {
     const axiosInstance = axios.create({
         baseURL,
         headers: {
-          Authorization: `Bearer ${authTokenState?.access}`,
+          Authorization: authTokenState?.access ? `Bearer ${authTokenState.access}` : undefined,
         },
-      });
+    });
 
-      axiosInstance.interceptors.response.use(
+    axiosInstance.interceptors.response.use(
         async (response) => {
-            console.log('useAxios response executed without refreshing token')
-          // If the request was successful, no need to refresh token
-          return response;
+            return response;
         },
         async (error) => {
-            console.log('useAxios error executed')
-            console.log('authtokenState',authTokenState)
-          const originalRequest = error.config;
-      
-          // If the error is not due to token expiration, reject with the error
-          if (error.response.status !== 401) {
+            const originalRequest = error.config;
+            
+            if (error.response?.status === 401 && !originalRequest._retry) {
+                originalRequest._retry = true;
+                
+                try {
+                    const response = await axios.post(`${baseURL}/api-auth/login/refresh/`, {
+                        refresh: authTokenState?.refresh,
+                    });
+
+                    const updatedAuthToken = {
+                        access: response.data.access,
+                        refresh: authTokenState.refresh,
+                    };
+
+                    dispatch(setAuthToken(updatedAuthToken));
+                    originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
+                    
+                    return axios(originalRequest);
+                } catch (refreshError) {
+                    dispatch(clearAuthToken());
+                    window.location.href = '/login';
+                    return Promise.reject(refreshError);
+                }
+            }
+            
             return Promise.reject(error);
-          }
-      
-          // Try to refresh the token
-          try {
-            const response = await axios.post(`${baseURL}/api-auth/login/refresh/`, {
-              refresh: authTokenState.refresh,
-            });
-      
-            // Update the access token and retry the original request
-            const updatedAuthToken = {
-              access: response.data.access,
-              refresh: authTokenState.refresh,
-            };
-      
-            localStorage.setItem('auth_token', JSON.stringify(updatedAuthToken));
-            dispatch(setAuthToken(updatedAuthToken));
-            originalRequest.headers['Authorization'] = `Bearer ${response.data.access}`;
-      
-            return axios(originalRequest);
-          } catch (refreshError) {
-            // Handle refresh error (e.g., redirect to login page)
-            window.location.replace('/login');
-      
-      
-            console.error('Failed to refresh token:', refreshError);
-            // You might want to redirect to the login page or handle the error in another way
-            return Promise.reject(error);
-          }
         }
-      );
+    );
 
-      return axiosInstance;
-
+    return axiosInstance;
 }
 
 export default useAxios;

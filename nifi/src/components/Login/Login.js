@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useState } from 'react';
 import { UseReadingcontext } from '../../Readingcontext';
-import axiosInstance from '../../utils/axiosInstance';
+import { useDispatch } from 'react-redux';
+import { setAuthToken } from '../../Redux/AuthSlice';
 
 const Login = () => {
 
@@ -13,6 +14,7 @@ const Login = () => {
   const [password,setPassword] = useState('')
   const [error,setError] = useState()
 
+  const dispatch = useDispatch();
   const {api} = UseReadingcontext()
 
   const navigate = useNavigate();
@@ -21,15 +23,17 @@ const Login = () => {
     axios.post(api+'/api-auth/login/', { username, password })
         .then(response => {
             console.log('response.data',response.data);
-
+            // Store token in localStorage
             localStorage.setItem('auth_token', JSON.stringify(response.data));
-            console.log('stored token', response.data);
+            // Update Redux state
+            dispatch(setAuthToken(response.data));
+            // Navigate to home
             navigate('/home');
         })
         .catch(err => {
             setError(err.response.data.error);
         });
-      }
+  }
   
 
   return (

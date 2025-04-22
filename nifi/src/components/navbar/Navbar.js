@@ -18,7 +18,7 @@ function BasicExample() {
         <Navbar.Toggle  aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto" id='navcomponent'>
-          <a href={api+"admin"} className="nav-link" target="_blank" rel="noopener noreferrer">Admin</a>
+          <a href={api+"/admin/"} className="nav-link" target="_blank" rel="noopener noreferrer">Admin</a>
             {isHomePage ? (
               <Nav.Link href="#logout" onClick={
                 () => {

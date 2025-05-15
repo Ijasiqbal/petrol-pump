@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Setopening from "./Setopening";
 import Setclosing from "./Setclosing";
 import { UseReadingcontext } from "../../Readingcontext";
@@ -7,8 +7,37 @@ import { useSelector } from "react-redux";
 import ErrorModal from "../../ErrorModal";
 import useAxios from "../../utils/useAxios";
 import { TextField } from "@mui/material";
+import {
+  GoogleGenAI,
+  createUserContent,
+  createPartFromUri,
+  Type
+} from "@google/genai";
+
+// Import environment variable
+const googleApiKey = process.env.REACT_APP_GOOGLE_API_KEY;
+
+if (!googleApiKey) {
+  throw new Error("Google API Key must be set in the environment as GOOGLE_API_KEY when running in a browser.");
+}
+
+// Helper function to safely convert large ArrayBuffers to base64
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
 
 const Sales = () => {
+
+  const ai = new GoogleGenAI({ apiKey: googleApiKey });
+
+
+
 
   let apiCall = useAxios();
 
@@ -87,7 +116,7 @@ const Sales = () => {
     petrolUnits += parseFloat(CloseDuNozzles[0][2] - OpenDuNozzles[0][2] - test[0][2]);
     dieselUnits += parseFloat(CloseDuNozzles[0][3] - OpenDuNozzles[0][3] - test[0][3]);
 
-    petrolUnits += parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]); 
+    petrolUnits += parseFloat(CloseDuNozzles[1][0] - OpenDuNozzles[1][0] - test[1][0]);
     dieselUnits += parseFloat(CloseDuNozzles[1][1] - OpenDuNozzles[1][1] - test[1][1]);
     petrolUnits += parseFloat(CloseDuNozzles[1][2] - OpenDuNozzles[1][2] - test[1][2]);
     dieselUnits += parseFloat(CloseDuNozzles[1][3] - OpenDuNozzles[1][3] - test[1][3]);
@@ -107,10 +136,10 @@ const Sales = () => {
     extrapriemiumSales = parseInt(extrapriemiumUnits * extrapriemium);
     extragreenSales = parseInt(extragreenUnits * extragreen);
 
-  
-  
+
+
     let totalSales = petrolSales + dieselSales + extrapriemiumSales + extragreenSales;
-  
+
     setPetrolSales(petrolSales);
     setDieselSales(dieselSales);
     setExtraPremiumSales(extrapriemiumSales);
@@ -120,8 +149,17 @@ const Sales = () => {
     setDieselUnits(parseFloat(dieselUnits.toFixed(2)));
     setExtraPremiumUnits(parseFloat(extrapriemiumUnits.toFixed(2)));
     setExtraGreenUnits(parseFloat(extragreenUnits.toFixed(2)));
-    
+
     return totalSales;
+
+  }
+
+  async function gemini() {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: "How does AI work?",
+    })
+    console.log(response);
 
   }
 
@@ -178,8 +216,8 @@ const Sales = () => {
         console.error('Error updating database:', error);
       })
   }
-  function AddFuelSales(){
-    const total = parseFloat(petrolSales)+parseFloat(dieselSales)+parseFloat(extraPremiumSales)+parseFloat(extraGreenSales)
+  function AddFuelSales() {
+    const total = parseFloat(petrolSales) + parseFloat(dieselSales) + parseFloat(extraPremiumSales) + parseFloat(extraGreenSales)
 
     setfuel(total)
   }
@@ -240,6 +278,128 @@ const Sales = () => {
     AddFuelSales();
   }, [extraGreenSales, dieselSales, petrolSales, extraPremiumSales]);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  const handleVoiceTypingClick = async () => {
+    if (!isRecording) {
+      try {
+        // Clean up previous recorder if any
+        if (mediaRecorderRef.current) {
+          mediaRecorderRef.current.onstop = null;
+          mediaRecorderRef.current = null;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus')
+          ? 'audio/webm; codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')
+            ? 'audio/ogg; codecs=opus'
+            : '';
+        const recorder = mimeType
+          ? new MediaRecorder(stream, { mimeType })
+          : new MediaRecorder(stream);
+
+        mediaRecorderRef.current = recorder;
+        audioChunksRef.current = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            audioChunksRef.current.push(e.data);
+          }
+        };
+
+        recorder.onstop = async () => {
+          // a) Build the final audio Blob
+          const audioBlob = new Blob(audioChunksRef.current, {
+            type: recorder.mimeType || audioChunksRef.current[0].type
+          });
+
+          // b) Stop all mic tracks
+          stream.getTracks().forEach((t) => t.stop());
+
+          // c) Convert to base64
+          const buffer = await audioBlob.arrayBuffer();
+          const base64Data = arrayBufferToBase64(buffer);
+
+          const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
+    credit, closingBalance, openingBalance, oil, itemSales, debit,
+    extraGreenSales, dieselSales, petrolSales, extraPremiumSales.
+    Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that i did not mention.`
+
+          // d) Send inline to Gemini
+          const response = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: [
+              prompt,
+              { inlineData: { mimeType: audioBlob.type, data: base64Data } }
+            ],
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  cash:              { type: Type.NUMBER },
+                  totalPaytm:        { type: Type.NUMBER },
+                  totalCards:        { type: Type.NUMBER },
+                  credit:            { type: Type.NUMBER },
+                  closingBalance:    { type: Type.NUMBER },
+                  openingBalance:    { type: Type.NUMBER },
+                  oil:               { type: Type.NUMBER },
+                  itemSales:         { type: Type.NUMBER },
+                  debit:             { type: Type.NUMBER },
+                  extraGreenSales:   { type: Type.NUMBER },
+                  dieselSales:       { type: Type.NUMBER },
+                  petrolSales:       { type: Type.NUMBER },
+                  extraPremiumSales: { type: Type.NUMBER },
+                },
+                propertyOrdering: [
+                  "cash","totalPaytm","totalCards","credit",
+                  "closingBalance","openingBalance","oil","itemSales",
+                  "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales"
+                ]
+              },
+            },
+          });          console.log('Gemini response:', response.text);
+          console.log('Gemini response:', response);
+          
+          // Parse JSON response and populate fields
+          try {
+            const parsedResponse = JSON.parse(response.text);
+            console.log('json resp', parsedResponse);
+            
+            // Populate form fields based on keys present in the response
+            if (parsedResponse.cash !== undefined) setcash(parsedResponse.cash);
+            if (parsedResponse.totalPaytm !== undefined) setTotalPaytm(parsedResponse.totalPaytm);
+            if (parsedResponse.totalCards !== undefined) setTotalCards(parsedResponse.totalCards);
+            if (parsedResponse.credit !== undefined) setCredit(parsedResponse.credit);
+            if (parsedResponse.closingBalance !== undefined) setClosingBalance(parsedResponse.closingBalance);
+            if (parsedResponse.openingBalance !== undefined) setOpeningBalance(parsedResponse.openingBalance);
+            if (parsedResponse.oil !== undefined) setoil(parsedResponse.oil);
+            if (parsedResponse.itemSales !== undefined) setitem(parsedResponse.itemSales);
+            if (parsedResponse.debit !== undefined) setdebit(parsedResponse.debit);
+            if (parsedResponse.extraGreenSales !== undefined) setExtraGreenSales(parsedResponse.extraGreenSales);
+            if (parsedResponse.dieselSales !== undefined) setDieselSales(parsedResponse.dieselSales);
+            if (parsedResponse.petrolSales !== undefined) setPetrolSales(parsedResponse.petrolSales);
+            if (parsedResponse.extraPremiumSales !== undefined) setExtraPremiumSales(parsedResponse.extraPremiumSales);
+          } catch (jsonError) {
+            console.error('Error parsing JSON response:', jsonError);
+          }
+          
+          setIsRecording(false);
+        };
+
+        recorder.start(1000); // Collect data every second for long recordings
+        setIsRecording(true);
+      } catch (err) {
+        alert('Microphone access denied or not available.');
+      }
+    } else {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+    }
+  };
 
   return (
     <div >
@@ -287,43 +447,43 @@ const Sales = () => {
             setfuel(sales);
           }}>Calculate</button>
           <div className="salesSplitContainer">
-            {(extragreenUnits !== 0 || dieselUnits !== 0 || petrolUnits !== 0 || extrapriemiumUnits !== 0 )&&(
-            <div className="salesSplit">
-              <p>Extra Green Units: {extragreenUnits}</p>
-              <p>Diesel Units: {dieselUnits}</p>
-              <p>Petrol Units: {petrolUnits}</p>
-              <p>Extra Premium Units: {extrapriemiumUnits}</p>
-            </div>
-          )}
+            {(extragreenUnits !== 0 || dieselUnits !== 0 || petrolUnits !== 0 || extrapriemiumUnits !== 0) && (
+              <div className="salesSplit">
+                <p>Extra Green Units: {extragreenUnits}</p>
+                <p>Diesel Units: {dieselUnits}</p>
+                <p>Petrol Units: {petrolUnits}</p>
+                <p>Extra Premium Units: {extrapriemiumUnits}</p>
+              </div>
+            )}
             <div className="salesSplit2">
               <label>
-                Extra Green Sales: 
+                Extra Green Sales:
                 <input type="number" value={extraGreenSales} onChange={(e) => {
                   setExtraGreenSales(e.target.value)
                 }} />
               </label>
               <label>
-                Diesel Sales: 
+                Diesel Sales:
                 <input type="number" value={dieselSales} onChange={(e) => {
                   setDieselSales(e.target.value)
                 }} />
               </label>
               <label>
-                Petrol Sales: 
+                Petrol Sales:
                 <input type="number" value={petrolSales} onChange={(e) => {
                   setPetrolSales(e.target.value)
                 }} />
               </label>
               <label>
-                XP Sales: 
+                XP Sales:
                 <input type="number" value={extraPremiumSales} onChange={(e) => {
                   setExtraPremiumSales(e.target.value)
                 }} />
               </label>
             </div>
-            
+
           </div>
-          
+
         </div>
         {/* Debit */}
         <div className="debit">
@@ -494,6 +654,19 @@ const Sales = () => {
         <h4 className="shortage">Shortage/Gain:{CalcShortage()}</h4>
       </div>
       <button id="savebtn" className="btn" onClick={postSales}>Save</button>
+      {/* Floating Voice Typing Button */}
+      <div className="voice-typing-fab" style={{ position: 'fixed', bottom: '32px', right: '32px', zIndex: 1000 }}>
+        <button
+          className="btn1"
+          style={{ borderRadius: '50%', width: '56px', height: '56px', fontSize: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', background: isRecording ? '#ff5252' : '' }}
+          onClick={handleVoiceTypingClick}
+        >
+          {isRecording ? '■' : '🎤'}
+        </button>
+        <div className="voice-typing-status" style={{ fontSize: '12px', marginTop: '4px', textAlign: 'center' }}>
+          {isRecording ? 'Recording...' : 'Tap mic to record'}
+        </div>
+      </div>
     </div>
   );
 };

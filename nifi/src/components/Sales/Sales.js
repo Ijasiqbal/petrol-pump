@@ -277,56 +277,68 @@ const Sales = () => {
   useEffect(() => {
     AddFuelSales();
   }, [extraGreenSales, dieselSales, petrolSales, extraPremiumSales]);
-
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
   const handleVoiceTypingClick = async () => {
-    if (!isRecording) {
-      try {
-        // Clean up previous recorder if any
-        if (mediaRecorderRef.current) {
-          mediaRecorderRef.current.onstop = null;
-          mediaRecorderRef.current = null;
+    // If already recording, stop the recording
+    if (isRecording) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      return;
+    }
+
+    // If not recording, start a new recording
+    try {
+      // Clean up previous recorder if any
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current = null;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus')
+        ? 'audio/webm; codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')
+          ? 'audio/ogg; codecs=opus'
+          : '';
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
+
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data);
         }
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus')
-          ? 'audio/webm; codecs=opus'
-          : MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')
-            ? 'audio/ogg; codecs=opus'
-            : '';
-        const recorder = mimeType
-          ? new MediaRecorder(stream, { mimeType })
-          : new MediaRecorder(stream);
+      };
 
-        mediaRecorderRef.current = recorder;
-        audioChunksRef.current = [];
+      recorder.onstop = async () => {
+        setIsRecording(false);
+        setIsProcessing(true);
+        
+        // a) Build the final audio Blob
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || audioChunksRef.current[0].type
+        });
 
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            audioChunksRef.current.push(e.data);
-          }
-        };
+        // b) Stop all mic tracks
+        stream.getTracks().forEach((t) => t.stop());
 
-        recorder.onstop = async () => {
-          // a) Build the final audio Blob
-          const audioBlob = new Blob(audioChunksRef.current, {
-            type: recorder.mimeType || audioChunksRef.current[0].type
-          });
+        // c) Convert to base64
+        const buffer = await audioBlob.arrayBuffer();
+        const base64Data = arrayBufferToBase64(buffer);
 
-          // b) Stop all mic tracks
-          stream.getTracks().forEach((t) => t.stop());
+        const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
+  credit, closingBalance, openingBalance, oil, itemSales, debit,
+  extraGreenSales, dieselSales, petrolSales, extraPremiumSales, expense.
+  Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that i did not mention.`
 
-          // c) Convert to base64
-          const buffer = await audioBlob.arrayBuffer();
-          const base64Data = arrayBufferToBase64(buffer);
-
-          const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
-    credit, closingBalance, openingBalance, oil, itemSales, debit,
-    extraGreenSales, dieselSales, petrolSales, extraPremiumSales.
-    Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that i did not mention.`
-
+        try {
           // d) Send inline to Gemini
           const response = await ai.models.generateContent({
             model: "gemini-2.0-flash",
@@ -352,15 +364,17 @@ const Sales = () => {
                   dieselSales:       { type: Type.NUMBER },
                   petrolSales:       { type: Type.NUMBER },
                   extraPremiumSales: { type: Type.NUMBER },
+                  expense:          { type: Type.NUMBER },
                 },
                 propertyOrdering: [
                   "cash","totalPaytm","totalCards","credit",
                   "closingBalance","openingBalance","oil","itemSales",
-                  "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales"
+                  "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales","expense"
                 ]
               },
             },
-          });          console.log('Gemini response:', response.text);
+          });
+          console.log('Gemini response:', response.text);
           console.log('Gemini response:', response);
           
           // Parse JSON response and populate fields
@@ -369,35 +383,38 @@ const Sales = () => {
             console.log('json resp', parsedResponse);
             
             // Populate form fields based on keys present in the response
-            if (parsedResponse.cash !== undefined) setcash(parsedResponse.cash);
-            if (parsedResponse.totalPaytm !== undefined) setTotalPaytm(parsedResponse.totalPaytm);
-            if (parsedResponse.totalCards !== undefined) setTotalCards(parsedResponse.totalCards);
-            if (parsedResponse.credit !== undefined) setCredit(parsedResponse.credit);
-            if (parsedResponse.closingBalance !== undefined) setClosingBalance(parsedResponse.closingBalance);
-            if (parsedResponse.openingBalance !== undefined) setOpeningBalance(parsedResponse.openingBalance);
-            if (parsedResponse.oil !== undefined) setoil(parsedResponse.oil);
-            if (parsedResponse.itemSales !== undefined) setitem(parsedResponse.itemSales);
-            if (parsedResponse.debit !== undefined) setdebit(parsedResponse.debit);
-            if (parsedResponse.extraGreenSales !== undefined) setExtraGreenSales(parsedResponse.extraGreenSales);
-            if (parsedResponse.dieselSales !== undefined) setDieselSales(parsedResponse.dieselSales);
-            if (parsedResponse.petrolSales !== undefined) setPetrolSales(parsedResponse.petrolSales);
-            if (parsedResponse.extraPremiumSales !== undefined) setExtraPremiumSales(parsedResponse.extraPremiumSales);
+            // Only update when value is defined and not zero (or explicitly set to zero)
+            if (parsedResponse.cash !== undefined && parsedResponse.cash !== 0) setcash(parsedResponse.cash);
+            if (parsedResponse.totalPaytm !== undefined && parsedResponse.totalPaytm !== 0) setTotalPaytm(parsedResponse.totalPaytm);
+            if (parsedResponse.totalCards !== undefined && parsedResponse.totalCards !== 0) setTotalCards(parsedResponse.totalCards);
+            if (parsedResponse.credit !== undefined && parsedResponse.credit !== 0) setCredit(parsedResponse.credit);
+            if (parsedResponse.closingBalance !== undefined && parsedResponse.closingBalance !== 0) setClosingBalance(parsedResponse.closingBalance);
+            if (parsedResponse.openingBalance !== undefined && parsedResponse.openingBalance !== 0) setOpeningBalance(parsedResponse.openingBalance);
+            if (parsedResponse.oil !== undefined && parsedResponse.oil !== 0) setoil(parsedResponse.oil);
+            if (parsedResponse.itemSales !== undefined && parsedResponse.itemSales !== 0) setitem(parsedResponse.itemSales);
+            if (parsedResponse.debit !== undefined && parsedResponse.debit !== 0) setdebit(parsedResponse.debit);
+            if (parsedResponse.extraGreenSales !== undefined && parsedResponse.extraGreenSales !== 0) setExtraGreenSales(parsedResponse.extraGreenSales);
+            if (parsedResponse.dieselSales !== undefined && parsedResponse.dieselSales !== 0) setDieselSales(parsedResponse.dieselSales);
+            if (parsedResponse.petrolSales !== undefined && parsedResponse.petrolSales !== 0) setPetrolSales(parsedResponse.petrolSales);
+            if (parsedResponse.extraPremiumSales !== undefined && parsedResponse.extraPremiumSales !== 0) setExtraPremiumSales(parsedResponse.extraPremiumSales);
+            if (parsedResponse?.expense && parsedResponse?.totalPaytm && parsedResponse.credit === undefined) { 
+              setCredit(parsedResponse.expense-parsedResponse.totalPaytm);
+            };
           } catch (jsonError) {
             console.error('Error parsing JSON response:', jsonError);
           }
-          
-          setIsRecording(false);
-        };
+        } catch (apiError) {
+          console.error('Error processing audio with Gemini:', apiError);
+          alert('Error processing audio. Please try again.');
+        } finally {
+          setIsProcessing(false);
+        }
+      };
 
-        recorder.start(1000); // Collect data every second for long recordings
-        setIsRecording(true);
-      } catch (err) {
-        alert('Microphone access denied or not available.');
-      }
-    } else {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
+      recorder.start(1000); // Collect data every second for long recordings
+      setIsRecording(true);
+    } catch (err) {
+      alert('Microphone access denied or not available.');
     }
   };
 
@@ -653,18 +670,53 @@ const Sales = () => {
       <div className={CalcShortage() > 0 ? "green" : CalcShortage() < 0 ? "red" : "black"} >
         <h4 className="shortage">Shortage/Gain:{CalcShortage()}</h4>
       </div>
-      <button id="savebtn" className="btn" onClick={postSales}>Save</button>
-      {/* Floating Voice Typing Button */}
+      <button id="savebtn" className="btn" onClick={postSales}>Save</button>      {/* Floating Voice Typing Button */}
       <div className="voice-typing-fab" style={{ position: 'fixed', bottom: '32px', right: '32px', zIndex: 1000 }}>
         <button
           className="btn1"
-          style={{ borderRadius: '50%', width: '56px', height: '56px', fontSize: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', background: isRecording ? '#ff5252' : '' }}
+          style={{ 
+            borderRadius: '50%', 
+            width: '56px', 
+            height: '56px', 
+            fontSize: '24px', 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)', 
+            background: isRecording ? '#ff5252' : '',
+            position: 'relative'
+          }}
           onClick={handleVoiceTypingClick}
+          disabled={isProcessing}
         >
-          {isRecording ? '■' : '🎤'}
+          {isProcessing ? (
+            <span className="loading-spinner" style={{
+              display: 'inline-block',
+              width: '24px',
+              height: '24px',
+              border: '3px solid rgba(255,255,255,0.3)',
+              borderRadius: '50%',
+              borderTopColor: '#fff',
+              animation: 'spin 1s linear infinite'
+            }}></span>
+          ) : isRecording ? '■' : '🎤'}
         </button>
-        <div className="voice-typing-status" style={{ fontSize: '12px', marginTop: '4px', textAlign: 'center' }}>
-          {isRecording ? 'Recording...' : 'Tap mic to record'}
+        <style>
+          {`
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+            @keyframes pulse {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.2); }
+              100% { transform: scale(1); }
+            }
+          `}
+        </style>
+        <div className="voice-typing-status" style={{ 
+          fontSize: '12px', 
+          marginTop: '4px', 
+          textAlign: 'center',
+          animation: isRecording ? 'pulse 1.5s infinite ease-in-out' : 'none'
+        }}>
+          {isProcessing ? 'Processing...' : isRecording ? 'Recording...' : 'Tap mic to record'}
         </div>
       </div>
     </div>

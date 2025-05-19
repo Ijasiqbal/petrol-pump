@@ -282,142 +282,163 @@ const Sales = () => {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  const handleVoiceTypingClick = async () => {
-    // If already recording, stop the recording
-    if (isRecording) {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
-      return;
+const handleVoiceTypingClick = async () => {
+  // 1) Start/stop logic
+  if (isRecording) {
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
     }
+    return;
+  }
 
-    // If not recording, start a new recording
-    try {
-      // Clean up previous recorder if any
-      if (mediaRecorderRef.current) {
-        mediaRecorderRef.current.onstop = null;
-        mediaRecorderRef.current = null;
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus')
-        ? 'audio/webm; codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')
-          ? 'audio/ogg; codecs=opus'
-          : '';
-      const recorder = mimeType
-        ? new MediaRecorder(stream, { mimeType })
-        : new MediaRecorder(stream);
+  try {
+    // Clean up previous recorder
+    mediaRecorderRef.current?.onstop && (mediaRecorderRef.current.onstop = null);
+    mediaRecorderRef.current = null;
 
-      mediaRecorderRef.current = recorder;
-      audioChunksRef.current = [];
+    // 2) Begin recording
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mimeType = MediaRecorder.isTypeSupported("audio/webm; codecs=opus")
+      ? "audio/webm; codecs=opus"
+      : MediaRecorder.isTypeSupported("audio/ogg; codecs=opus")
+      ? "audio/ogg; codecs=opus"
+      : "";
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          audioChunksRef.current.push(e.data);
-        }
-      };
+    mediaRecorderRef.current = recorder;
+    audioChunksRef.current = [];
 
-      recorder.onstop = async () => {
-        setIsRecording(false);
-        setIsProcessing(true);
-        
-        // a) Build the final audio Blob
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: recorder.mimeType || audioChunksRef.current[0].type
-        });
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunksRef.current.push(e.data);
+    };
 
-        // b) Stop all mic tracks
-        stream.getTracks().forEach((t) => t.stop());
+    recorder.onstop = async () => {
+      setIsRecording(false);
+      setIsProcessing(true);
 
-        // c) Convert to base64
-        const buffer = await audioBlob.arrayBuffer();
-        const base64Data = arrayBufferToBase64(buffer);
+      // a) Build the full Blob
+      const audioBlob = new Blob(audioChunksRef.current, {
+        type: recorder.mimeType || audioChunksRef.current[0].type,
+      });
+      stream.getTracks().forEach((t) => t.stop());
 
-        const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
-  credit, closingBalance, openingBalance, oil, itemSales, debit,
-  extraGreenSales, dieselSales, petrolSales, extraPremiumSales, expense.
-  Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that i did not mention.`
+      // b) Transcribe in chunks
+      const CHUNK_BYTE_SIZE = 2 * 1024 * 1024; // 2 MB per slice
+      const totalBytes = audioBlob.size;
+      let offset = 0;
+      const mergedResult = {};
 
+      const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
+credit, closingBalance, openingBalance, oil, itemSales, debit,
+extraGreenSales, dieselSales, petrolSales, extraPremiumSales, expense.
+Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that I did not mention.`;
+
+      while (offset < totalBytes) {
+        const end = Math.min(offset + CHUNK_BYTE_SIZE, totalBytes);
+        const chunk = audioBlob.slice(offset, end, audioBlob.type);
+
+        //  i) upload chunk
+        let uploaded;
         try {
-          // d) Send inline to Gemini
-          const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
+          uploaded = await ai.files.upload({
+            file: chunk,
+            config: { mimeType: chunk.type },
+          });
+        } catch (uploadErr) {
+          console.error("Upload error:", uploadErr);
+          alert("Failed to upload a chunk. Try again.");
+          setIsProcessing(false);
+          return;
+        }
+
+        // ii) transcribe chunk
+        let resp;
+        try {
+          resp = await ai.models.generateContent({
+            model: "gemini-2.5-flash-preview-04-17",
             contents: [
               prompt,
-              { inlineData: { mimeType: audioBlob.type, data: base64Data } }
+              createPartFromUri(uploaded.uri, uploaded.mimeType),
             ],
             config: {
               responseMimeType: "application/json",
               responseSchema: {
                 type: Type.OBJECT,
                 properties: {
-                  cash:              { type: Type.NUMBER },
-                  totalPaytm:        { type: Type.NUMBER },
-                  totalCards:        { type: Type.NUMBER },
-                  credit:            { type: Type.NUMBER },
-                  closingBalance:    { type: Type.NUMBER },
-                  openingBalance:    { type: Type.NUMBER },
-                  oil:               { type: Type.NUMBER },
-                  itemSales:         { type: Type.NUMBER },
-                  debit:             { type: Type.NUMBER },
-                  extraGreenSales:   { type: Type.NUMBER },
-                  dieselSales:       { type: Type.NUMBER },
-                  petrolSales:       { type: Type.NUMBER },
+                  cash: { type: Type.NUMBER },
+                  totalPaytm: { type: Type.NUMBER },
+                  totalCards: { type: Type.NUMBER },
+                  credit: { type: Type.NUMBER },
+                  closingBalance: { type: Type.NUMBER },
+                  openingBalance: { type: Type.NUMBER },
+                  oil: { type: Type.NUMBER },
+                  itemSales: { type: Type.NUMBER },
+                  debit: { type: Type.NUMBER },
+                  extraGreenSales: { type: Type.NUMBER },
+                  dieselSales: { type: Type.NUMBER },
+                  petrolSales: { type: Type.NUMBER },
                   extraPremiumSales: { type: Type.NUMBER },
-                  expense:          { type: Type.NUMBER },
+                  expense: { type: Type.NUMBER },
                 },
                 propertyOrdering: [
                   "cash","totalPaytm","totalCards","credit",
                   "closingBalance","openingBalance","oil","itemSales",
                   "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales","expense"
                 ]
-              },
-            },
+              }
+            }
           });
-          console.log('Gemini response:', response.text);
-          console.log('Gemini response:', response);
-          
-          // Parse JSON response and populate fields
-          try {
-            const parsedResponse = JSON.parse(response.text);
-            console.log('json resp', parsedResponse);
-            
-            // Populate form fields based on keys present in the response
-            // Only update when value is defined and not zero (or explicitly set to zero)
-            if (parsedResponse.cash !== undefined && parsedResponse.cash !== 0) setcash(parsedResponse.cash);
-            if (parsedResponse.totalPaytm !== undefined && parsedResponse.totalPaytm !== 0) setTotalPaytm(parsedResponse.totalPaytm);
-            if (parsedResponse.totalCards !== undefined && parsedResponse.totalCards !== 0) setTotalCards(parsedResponse.totalCards);
-            if (parsedResponse.credit !== undefined && parsedResponse.credit !== 0) setCredit(parsedResponse.credit);
-            if (parsedResponse.closingBalance !== undefined && parsedResponse.closingBalance !== 0) setClosingBalance(parsedResponse.closingBalance);
-            if (parsedResponse.openingBalance !== undefined && parsedResponse.openingBalance !== 0) setOpeningBalance(parsedResponse.openingBalance);
-            if (parsedResponse.oil !== undefined && parsedResponse.oil !== 0) setoil(parsedResponse.oil);
-            if (parsedResponse.itemSales !== undefined && parsedResponse.itemSales !== 0) setitem(parsedResponse.itemSales);
-            if (parsedResponse.debit !== undefined && parsedResponse.debit !== 0) setdebit(parsedResponse.debit);
-            if (parsedResponse.extraGreenSales !== undefined && parsedResponse.extraGreenSales !== 0) setExtraGreenSales(parsedResponse.extraGreenSales);
-            if (parsedResponse.dieselSales !== undefined && parsedResponse.dieselSales !== 0) setDieselSales(parsedResponse.dieselSales);
-            if (parsedResponse.petrolSales !== undefined && parsedResponse.petrolSales !== 0) setPetrolSales(parsedResponse.petrolSales);
-            if (parsedResponse.extraPremiumSales !== undefined && parsedResponse.extraPremiumSales !== 0) setExtraPremiumSales(parsedResponse.extraPremiumSales);
-            if (parsedResponse?.expense && parsedResponse?.totalPaytm && parsedResponse.credit === undefined) { 
-              setCredit(parsedResponse.expense-parsedResponse.totalPaytm);
-            };
-          } catch (jsonError) {
-            console.error('Error parsing JSON response:', jsonError);
-          }
-        } catch (apiError) {
-          console.error('Error processing audio with Gemini:', apiError);
-          alert('Error processing audio. Please try again.');
-        } finally {
+        } catch (apiErr) {
+          console.error("Transcription error:", apiErr);
+          alert("Error transcribing a chunk. Please try again.");
           setIsProcessing(false);
+          return;
         }
-      };
 
-      recorder.start(1000); // Collect data every second for long recordings
-      setIsRecording(true);
-    } catch (err) {
-      alert('Microphone access denied or not available.');
-    }
-  };
+        // iii) merge JSON
+        try {
+          const json = JSON.parse(resp.text);
+          Object.assign(mergedResult, json);
+        } catch (jsonErr) {
+          console.error("JSON parse error:", jsonErr);
+        }
 
+        offset = end;
+      }
+
+      // c) Populate fields from mergedResult
+      if (mergedResult.cash != null) setcash(mergedResult.cash);
+      if (mergedResult.totalPaytm != null) setTotalPaytm(mergedResult.totalPaytm);
+      if (mergedResult.totalCards != null) setTotalCards(mergedResult.totalCards);
+      if (mergedResult.credit != null) setCredit(mergedResult.credit);
+      if (mergedResult.closingBalance != null) setClosingBalance(mergedResult.closingBalance);
+      if (mergedResult.openingBalance != null) setOpeningBalance(mergedResult.openingBalance);
+      if (mergedResult.oil != null) setoil(mergedResult.oil);
+      if (mergedResult.itemSales != null) setitem(mergedResult.itemSales);
+      if (mergedResult.debit != null) setdebit(mergedResult.debit);
+      if (mergedResult.extraGreenSales != null) setExtraGreenSales(mergedResult.extraGreenSales);
+      if (mergedResult.dieselSales != null) setDieselSales(mergedResult.dieselSales);
+      if (mergedResult.petrolSales != null) setPetrolSales(mergedResult.petrolSales);
+      if (mergedResult.extraPremiumSales != null) setExtraPremiumSales(mergedResult.extraPremiumSales);
+      if (
+        mergedResult.expense != null &&
+        mergedResult.totalPaytm != null &&
+        mergedResult.credit == null
+      ) {
+        setCredit(mergedResult.expense - mergedResult.totalPaytm);
+      }
+
+      setIsProcessing(false);
+    };
+
+    recorder.start();  
+    setIsRecording(true);
+  } catch (err) {
+    console.error("Microphone access error:", err);
+    alert("Microphone access denied or not available.");
+  }
+};
+  
   return (
     <div >
       {showmodal && (<ErrorModal message={"Please set prices first"} onClose={() => { setShowmodal(false) }} />)}
@@ -674,12 +695,12 @@ const Sales = () => {
       <div className="voice-typing-fab" style={{ position: 'fixed', bottom: '32px', right: '32px', zIndex: 1000 }}>
         <button
           className="btn1"
-          style={{ 
-            borderRadius: '50%', 
-            width: '56px', 
-            height: '56px', 
-            fontSize: '24px', 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)', 
+          style={{
+            borderRadius: '50%',
+            width: '56px',
+            height: '56px',
+            fontSize: '24px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             background: isRecording ? '#ff5252' : '',
             position: 'relative'
           }}
@@ -710,9 +731,9 @@ const Sales = () => {
             }
           `}
         </style>
-        <div className="voice-typing-status" style={{ 
-          fontSize: '12px', 
-          marginTop: '4px', 
+        <div className="voice-typing-status" style={{
+          fontSize: '12px',
+          marginTop: '4px',
           textAlign: 'center',
           animation: isRecording ? 'pulse 1.5s infinite ease-in-out' : 'none'
         }}>

@@ -459,7 +459,7 @@ Return only a JSON object mapping each mentioned field to its numeric value. Do 
         }
 
         // Show success message
-        alert("Voice input processed successfully!");
+        console.log("Voice input processed successfully!");
       } catch (error) {
         console.error("Error processing voice input:", error);
         alert(`Error processing voice input: ${error.message}. Please try again.`);

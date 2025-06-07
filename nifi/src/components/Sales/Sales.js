@@ -316,126 +316,164 @@ const handleVoiceTypingClick = async () => {
       setIsRecording(false);
       setIsProcessing(true);
 
-      // a) Build the full Blob
-      const audioBlob = new Blob(audioChunksRef.current, {
-        type: recorder.mimeType || audioChunksRef.current[0].type,
-      });
-      stream.getTracks().forEach((t) => t.stop());
+      try {
+        // a) Build the full Blob
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || audioChunksRef.current[0].type,
+        });
+        stream.getTracks().forEach((t) => t.stop());
 
-      // b) Transcribe in chunks
-      const CHUNK_BYTE_SIZE = 2 * 1024 * 1024; // 2 MB per slice
-      const totalBytes = audioBlob.size;
-      let offset = 0;
-      const mergedResult = {};
+        // b) Transcribe in chunks with retry logic
+        const CHUNK_BYTE_SIZE = 1 * 1024 * 1024; // Reduced to 1MB per slice for better reliability
+        const totalBytes = audioBlob.size;
+        let offset = 0;
+        const mergedResult = {};
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
 
-      const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
+        const prompt = `I will speak key-value pairs for: cash, totalPaytm, totalCards,
 credit, closingBalance, openingBalance, oil, itemSales, debit,
 extraGreenSales, dieselSales, petrolSales, extraPremiumSales, expense.
 Return only a JSON object mapping each mentioned field to its numeric value. Do not return the key-value pairs that I did not mention.`;
 
-      while (offset < totalBytes) {
-        const end = Math.min(offset + CHUNK_BYTE_SIZE, totalBytes);
-        const chunk = audioBlob.slice(offset, end, audioBlob.type);
+        while (offset < totalBytes) {
+          const end = Math.min(offset + CHUNK_BYTE_SIZE, totalBytes);
+          const chunk = audioBlob.slice(offset, end, audioBlob.type);
 
-        //  i) upload chunk
-        let uploaded;
-        try {
-          uploaded = await ai.files.upload({
-            file: chunk,
-            config: { mimeType: chunk.type },
-          });
-        } catch (uploadErr) {
-          console.error("Upload error:", uploadErr);
-          alert("Failed to upload a chunk. Try again.");
-          setIsProcessing(false);
-          return;
-        }
-
-        // ii) transcribe chunk
-        let resp;
-        try {
-          resp = await ai.models.generateContent({
-            model: "gemini-2.5-flash-preview-04-17",
-            contents: [
-              prompt,
-              createPartFromUri(uploaded.uri, uploaded.mimeType),
-            ],
-            config: {
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                  cash: { type: Type.NUMBER },
-                  totalPaytm: { type: Type.NUMBER },
-                  totalCards: { type: Type.NUMBER },
-                  credit: { type: Type.NUMBER },
-                  closingBalance: { type: Type.NUMBER },
-                  openingBalance: { type: Type.NUMBER },
-                  oil: { type: Type.NUMBER },
-                  itemSales: { type: Type.NUMBER },
-                  debit: { type: Type.NUMBER },
-                  extraGreenSales: { type: Type.NUMBER },
-                  dieselSales: { type: Type.NUMBER },
-                  petrolSales: { type: Type.NUMBER },
-                  extraPremiumSales: { type: Type.NUMBER },
-                  expense: { type: Type.NUMBER },
-                },
-                propertyOrdering: [
-                  "cash","totalPaytm","totalCards","credit",
-                  "closingBalance","openingBalance","oil","itemSales",
-                  "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales","expense"
-                ]
+          // i) upload chunk with retry logic
+          let uploaded;
+          while (retryCount < MAX_RETRIES) {
+            try {
+              uploaded = await ai.files.upload({
+                file: chunk,
+                config: { mimeType: chunk.type },
+              });
+              break; // Success, exit retry loop
+            } catch (uploadErr) {
+              retryCount++;
+              if (retryCount === MAX_RETRIES) {
+                throw new Error(`Failed to upload chunk after ${MAX_RETRIES} attempts`);
               }
+              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
             }
-          });
-        } catch (apiErr) {
-          console.error("Transcription error:", apiErr);
-          alert("Error transcribing a chunk. Please try again.");
-          setIsProcessing(false);
-          return;
+          }
+
+          // ii) transcribe chunk with retry logic
+          retryCount = 0;
+          let resp;
+          while (retryCount < MAX_RETRIES) {
+            try {
+              resp = await ai.models.generateContent({
+                model: "gemini-2.5-flash-preview-04-17",
+                contents: [
+                  prompt,
+                  createPartFromUri(uploaded.uri, uploaded.mimeType),
+                ],
+                config: {
+                  responseMimeType: "application/json",
+                  responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                      cash: { type: Type.NUMBER },
+                      totalPaytm: { type: Type.NUMBER },
+                      totalCards: { type: Type.NUMBER },
+                      credit: { type: Type.NUMBER },
+                      closingBalance: { type: Type.NUMBER },
+                      openingBalance: { type: Type.NUMBER },
+                      oil: { type: Type.NUMBER },
+                      itemSales: { type: Type.NUMBER },
+                      debit: { type: Type.NUMBER },
+                      extraGreenSales: { type: Type.NUMBER },
+                      dieselSales: { type: Type.NUMBER },
+                      petrolSales: { type: Type.NUMBER },
+                      extraPremiumSales: { type: Type.NUMBER },
+                      expense: { type: Type.NUMBER },
+                    },
+                    propertyOrdering: [
+                      "cash","totalPaytm","totalCards","credit",
+                      "closingBalance","openingBalance","oil","itemSales",
+                      "debit","extraGreenSales","dieselSales","petrolSales","extraPremiumSales","expense"
+                    ]
+                  }
+                }
+              });
+              break; // Success, exit retry loop
+            } catch (apiErr) {
+              retryCount++;
+              if (retryCount === MAX_RETRIES) {
+                throw new Error(`Failed to transcribe chunk after ${MAX_RETRIES} attempts`);
+              }
+              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+            }
+          }
+
+          // iii) merge JSON with validation
+          try {
+            const json = JSON.parse(resp.text);
+            // Validate the response has at least one field
+            if (Object.keys(json).length === 0) {
+              console.warn("Empty response received for chunk");
+              continue;
+            }
+            Object.assign(mergedResult, json);
+          } catch (jsonErr) {
+            console.error("JSON parse error:", jsonErr);
+            // Continue processing other chunks even if one fails
+          }
+
+          offset = end;
         }
 
-        // iii) merge JSON
-        try {
-          const json = JSON.parse(resp.text);
-          Object.assign(mergedResult, json);
-        } catch (jsonErr) {
-          console.error("JSON parse error:", jsonErr);
+        // Validate final merged result
+        if (Object.keys(mergedResult).length === 0) {
+          throw new Error("No valid data was extracted from the audio");
         }
 
-        offset = end;
-      }
+        // c) Populate fields from mergedResult with validation
+        const updateField = (value, setter) => {
+          if (value != null && !isNaN(value)) {
+            setter(value);
+          }
+        };
 
-      // c) Populate fields from mergedResult
-      if (mergedResult.cash != null) setcash(mergedResult.cash);
-      if (mergedResult.totalPaytm != null) setTotalPaytm(mergedResult.totalPaytm);
-      if (mergedResult.totalCards != null) setTotalCards(mergedResult.totalCards);
-      if (mergedResult.credit != null) setCredit(mergedResult.credit);
-      if (mergedResult.closingBalance != null) setClosingBalance(mergedResult.closingBalance);
-      if (mergedResult.openingBalance != null) setOpeningBalance(mergedResult.openingBalance);
-      if (mergedResult.oil != null) setoil(mergedResult.oil);
-      if (mergedResult.itemSales != null) setitem(mergedResult.itemSales);
-      if (mergedResult.debit != null) setdebit(mergedResult.debit);
-      if (mergedResult.extraGreenSales != null) setExtraGreenSales(mergedResult.extraGreenSales);
-      if (mergedResult.dieselSales != null) setDieselSales(mergedResult.dieselSales);
-      if (mergedResult.petrolSales != null) setPetrolSales(mergedResult.petrolSales);
-      if (mergedResult.extraPremiumSales != null) setExtraPremiumSales(mergedResult.extraPremiumSales);
-      if (
-        mergedResult.expense != null &&
-        mergedResult.totalPaytm != null &&
-        mergedResult.credit == null
-      ) {
-        setCredit(mergedResult.expense - mergedResult.totalPaytm);
-      }
+        updateField(mergedResult.cash, setcash);
+        updateField(mergedResult.totalPaytm, setTotalPaytm);
+        updateField(mergedResult.totalCards, setTotalCards);
+        updateField(mergedResult.credit, setCredit);
+        updateField(mergedResult.closingBalance, setClosingBalance);
+        updateField(mergedResult.openingBalance, setOpeningBalance);
+        updateField(mergedResult.oil, setoil);
+        updateField(mergedResult.itemSales, setitem);
+        updateField(mergedResult.debit, setdebit);
+        updateField(mergedResult.extraGreenSales, setExtraGreenSales);
+        updateField(mergedResult.dieselSales, setDieselSales);
+        updateField(mergedResult.petrolSales, setPetrolSales);
+        updateField(mergedResult.extraPremiumSales, setExtraPremiumSales);
 
-      setIsProcessing(false);
+        if (
+          mergedResult.expense != null &&
+          mergedResult.totalPaytm != null &&
+          mergedResult.credit == null
+        ) {
+          updateField(mergedResult.expense - mergedResult.totalPaytm, setCredit);
+        }
+
+        // Show success message
+        alert("Voice input processed successfully!");
+      } catch (error) {
+        console.error("Error processing voice input:", error);
+        alert(`Error processing voice input: ${error.message}. Please try again.`);
+      } finally {
+        setIsProcessing(false);
+      }
     };
 
-    recorder.start();  
+    recorder.start();
     setIsRecording(true);
   } catch (err) {
     console.error("Microphone access error:", err);
     alert("Microphone access denied or not available.");
+    setIsProcessing(false);
   }
 };
   
